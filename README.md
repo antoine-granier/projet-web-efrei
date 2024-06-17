@@ -1,73 +1,84 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+Groupe 3
+Membres : DERENSY Dany, GRANIER Antoine
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Étude de Faisabilité de NestJs, GraphQL et Redis
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Fonctionnement de NestJs
 
-## Description
+NestJs est un framework pour construire des applications côté serveur avec Node.js en utilisant TypeScript. Il se distingue par son architecture modulaire, inspirée d’Angular, qui permet de structurer le code de manière organisée et maintenable.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Architecture Modulaire de NestJs
 
-## Installation
+NestJs utilise une architecture modulaire pour diviser l’application en différentes parties logiques.
 
-```bash
-$ npm install
-```
+Modules : Les modules regroupent des composants liés par fonctionnalité.
 
-## Running the app
+Contrôleurs : Les contrôleurs gèrent les requêtes HTTP entrantes.
 
-```bash
-# development
-$ npm run start
+Services : Les services contiennent la logique métier.
 
-# watch mode
-$ npm run start:dev
+Middlewares : Ils peuvent intercepter les requêtes avant qu'elles n'atteignent le contrôleur.
 
-# production mode
-$ npm run start:prod
-```
+Pipes : Utilisés pour transformer ou valider les données.
 
-## Test
+Guards : Utilisés pour la logique d'autorisation.
 
-```bash
-# unit tests
-$ npm run test
+## Intérêt d'utiliser GraphQL pour le développement d'une API
 
-# e2e tests
-$ npm run test:e2e
+GraphQL est un langage de requête pour les APIs et un runtime pour exécuter ces requêtes sur vos données.
 
-# test coverage
-$ npm run test:cov
-```
+### Avantages de GraphQL
 
-## Support
+Flexibilité des Requêtes : Permet aux clients de demander exactement les données dont ils ont besoin.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Efficacité : Un seul appel peut récupérer toutes les données requises.
 
-## Stay in touch
+Typage Fort : Facilite la validation et la documentation des APIs.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Évolution des APIs : Permet d'ajouter des champs sans affecter les clients existants.
 
-## License
+### Inconvénients de GraphQL
 
-Nest is [MIT licensed](LICENSE).
+Complexité de la Mise en Œuvre : Plus complexe à mettre en place qu'une API REST.
+
+Performance : Des requêtes complexes peuvent être difficiles à optimiser.
+Sécurité des Données : Besoin de sécuriser les données pour éviter les abus.
+
+## Pertinence de Mixer NestJs, GraphQL et Redis
+
+Redis est une base de données en mémoire utilisée comme cache, magasin de données, et moteur de message. L'intégration de Redis avec NestJs et GraphQL peut apporter des avantages significatifs.
+
+### Avantages de Combiner NestJs, GraphQL et Redis
+
+#### Amélioration des Performances :
+
+Caching : Redis peut être utilisé pour mettre en cache les résultats de requêtes fréquentes, réduisant ainsi le temps de réponse et la charge sur la base de données principale.
+
+Sessions : Gestion efficace des sessions utilisateur grâce à Redis.
+Scalabilité :
+
+Scalabilité Horizontale : Redis facilite la mise à l'échelle horizontale des applications en distribuant les charges de travail et en réduisant la latence des requêtes.
+
+#### Flexibilité :
+
+Données Temporelles : Gestion efficace des données temporaires et des sessions avec expiration automatique.
+
+Pub/Sub : Utilisation du système de publication/abonnement de Redis pour les notifications en temps réel.
+
+#### Optimisation des Requêtes GraphQL :
+
+Cache de Requêtes : Mise en cache des résultats de requêtes GraphQL pour améliorer les performances.
+
+Rate Limiting : Utilisation de Redis pour implémenter des limites de taux et prévenir les abus d'API.
+
+#### Scénarios d'Utilisation
+
+API en Temps Réel : Utiliser GraphQL Subscriptions avec Redis Pub/Sub pour implémenter des fonctionnalités en temps réel comme les notifications, les mises à jour en direct, etc.
+
+Gestion des Sessions : Stocker les sessions utilisateur dans Redis pour une gestion rapide et efficace.
+
+Optimisation des Performances : Utiliser Redis pour mettre en cache les réponses des requêtes GraphQL, réduire la charge de la base de données et améliorer le temps de réponse.
+
+# Conclusion
+
+Combiner NestJs, GraphQL et Redis offre une solution puissante pour développer des APIs performantes et scalables. NestJs fournit une structure modulaire et une base robuste pour le développement. GraphQL apporte flexibilité et efficacité dans la récupération des données. Redis, en tant que cache et gestionnaire de données temporaires, améliore considérablement les performances et la scalabilité de l'application. Cette combinaison permet de créer des applications performantes, réactives et faciles à maintenir.
