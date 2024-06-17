@@ -12,11 +12,40 @@ type User {
   email: String!
 }
 
+type Chat {
+  id: ID!
+  users: [User!]!
+}
+
+type Message {
+  id: ID!
+  content: String!
+  author: User!
+  chat: Chat!
+}
+
 type Query {
   result: Result!
-  users: [User!]!
+  getUsers: [User!]!
+  getChats: [Chat!]!
+  getChatsByUser(userId: String!): [Chat!]!
+  getMessages: [Message!]!
+  getMessagesByChat(chatId: String!): [Message!]!
 }
 
 type Mutation {
   createUser(name: String!, email: String!): User!
+  createChat(users: [InputUser!]!): Chat!
+  createMessage(content: String!, author: InputUser!, chat: InputChat!): Message!
+}
+
+input InputUser {
+  id: ID!
+  name: String!
+  email: String!
+}
+
+input InputChat {
+  id: ID!
+  users: [InputUser!]!
 }

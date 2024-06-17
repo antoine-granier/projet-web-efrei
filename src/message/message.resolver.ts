@@ -22,7 +22,7 @@ export class MessageResolver {
   createMessage(
     @Args('content') content: string,
     @Args('author') author: InputUser,
-    @Args('chat') chat: InputChat,
+    @Args('chat', {type: () => InputChat}) chat: InputChat,
   ): Message {
     return this.messageService.create(content, author, chat);
   }

@@ -18,7 +18,7 @@ export class ChatResolver {
   }
 
   @Mutation(() => Chat)
-  createChat(@Args('users', {type: () => [InputUser]}) users: User[]): Chat {
+  createChat(@Args('users', {type: () => [InputUser]}) users: InputUser[]): Chat {
     return this.chatService.create(users);
   }
 }
