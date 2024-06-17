@@ -11,7 +11,7 @@ export class UserService {
 
   create(name: string, email: string): User {
     const user = { id: Date.now().toString(), name, email };
-    this.users.push(user);
+    // this.users.push(user);k-
     return user;
   }
 }

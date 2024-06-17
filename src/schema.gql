@@ -36,6 +36,7 @@ type Query {
 type Mutation {
   createUser(name: String!, email: String!): User!
   createChat(users: [InputUser!]!): Chat!
+  addMessageToChat(chatId: String!, message: String!): Boolean!
   createMessage(content: String!, author: InputUser!, chat: InputChat!): Message!
 }
 

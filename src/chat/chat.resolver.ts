@@ -21,4 +21,13 @@ export class ChatResolver {
   createChat(@Args('users', {type: () => [InputUser]}) users: InputUser[]): Chat {
     return this.chatService.create(users);
   }
+
+  @Mutation(returns => Boolean)
+  async addMessageToChat(
+    @Args('chatId') chatId: string,
+    @Args('message') message: string,
+  ) {
+    await this.chatService.addMessageToChatQueue(chatId, message);
+    return true;
+  }
 }
