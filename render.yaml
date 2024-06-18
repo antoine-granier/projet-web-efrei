@@ -6,12 +6,8 @@ services:
     plan: free
     ipAllowList: []
 
-  # - type: web
-  #   name: nest
-  #   plan: free
-  #   image:
-  #     url: zeeeartiste/back-chat-app:latest
-  #   envVars:
-  #     - key: REDIS_HOST
-  #       value: redis
-  #   runtime: docker
+  - type: web
+    name: nest
+    runtime: docker
+    image:
+      url: zeeeartiste/back-chat-app:latest
