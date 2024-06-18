@@ -4,16 +4,11 @@ services:
   - type: redis
     name: redis
     plan: free
-    ipAllowList:
-      - source: 0.0.0.0/0
+    ipAllowList: []
 
   - type: web
     name: nest
+    runtime: image
     plan: free
     image:
       url: zeeeartiste/back-chat-app:latest
-    envVars:
-      - key: REDIS_HOST
-        value: redis
-    runtime: docker
-    healthCheckPath: /
