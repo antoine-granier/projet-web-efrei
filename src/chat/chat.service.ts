@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bull';
-import * as Bull from 'bull'; 
+import * as Bull from 'bull';
 import { Chat } from 'src/models/chat.model';
 import { User } from 'src/models/user.model';
 import { ChatProcessor } from './chat.processor';
@@ -13,20 +13,21 @@ export class ChatService {
   private readonly logger = new Logger(ChatService.name);
 
   constructor(
-    @InjectQueue('chat') private readonly defaultQueue: Queue,private readonly chatProcessor:ChatProcessor
+    @InjectQueue('chat') private readonly defaultQueue: Queue,
+    private readonly chatProcessor: ChatProcessor,
   ) {}
 
-  async createChatQueue(chatId: string): Promise<Bull.Queue> {   
+  async createChatQueue(chatId: string): Promise<Bull.Queue> {
     if (!this.chatQueues.has(chatId)) {
       const redisConfig = {
-        host:  'localhost',
-        port:  6379,
+        host: 'localhost',
+        port: 6379,
       };
       const chatQueue = new Bull(`chat-${chatId}`, {
         redis: redisConfig,
       });
 
-      chatQueue.process('newMessage',async (job: any) => {
+      chatQueue.process('newMessage', async (job: any) => {
         await this.chatProcessor.handleNewMessage(job);
       });
 
@@ -42,14 +43,15 @@ export class ChatService {
     return this.chatQueues.get(chatId);
   }
 
-  async addMessageToChatQueue(chatId: string, message: string) {    
+  async addMessageToChatQueue(chatId: string, message: string) {
     try {
-      const queue = this.chatQueues.get(chatId)
+      const queue = this.chatQueues.get(chatId);
       await queue.add('newMessage', { message });
-      
-
     } catch (error) {
-      this.logger.error(`Failed to add message to chat queue: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to add message to chat queue: ${error.message}`,
+        error.stack,
+      );
       throw new Error('Failed to add message to chat queue');
     }
   }
@@ -59,30 +61,33 @@ export class ChatService {
   }
 
   findByUser(userId: string): Chat[] {
-    return this.chats.filter(chat =>
-      chat.users.some(user => user.id === userId),
+    return this.chats.filter((chat) =>
+      chat.users.some((user) => user.id === userId),
     );
   }
 
   create(users: User[]): Chat {
     const chat: Chat = { id: Date.now().toString(), users };
-    this.createChatQueue(chat.id).catch(error => {
-      this.logger.error(`Failed to create chat queue: ${error.message}`, error.stack);
+    this.createChatQueue(chat.id).catch((error) => {
+      this.logger.error(
+        `Failed to create chat queue: ${error.message}`,
+        error.stack,
+      );
     });
     this.chats.push(chat);
     return chat;
   }
 
   addUser(user: User, chatId: string): Chat {
-    const chat: Chat = this.chats.find(chat => chat.id = chatId);
-    if(chat) {
+    const chat: Chat = this.chats.find((chat) => (chat.id = chatId));
+    if (chat) {
       chat.users.push(user);
-      this.chats = this.chats.map(c => {
-        if(c.id === chatId) {
+      this.chats = this.chats.map((c) => {
+        if (c.id === chatId) {
           return chat;
         }
         return c;
-      })
+      });
       return chat;
     } else {
       return null;

@@ -6,11 +6,11 @@ import { ChatProcessor } from './chat.processor';
 
 @Module({
   providers: [ChatService, ChatResolver, ChatProcessor],
-  imports:[
+  imports: [
     BullModule.registerQueue({
       name: 'chat',
     }),
   ],
-  exports:[ChatService]
+  exports: [ChatService],
 })
 export class ChatModule {}

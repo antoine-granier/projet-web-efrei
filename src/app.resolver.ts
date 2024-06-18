@@ -7,13 +7,12 @@ export class Result {
   result: string;
 }
 
-
 @Resolver()
 export class AppResolver {
   @Query(() => Result)
   result(): Result {
     return {
-      result: "OK"
+      result: 'OK',
     };
   }
 }
