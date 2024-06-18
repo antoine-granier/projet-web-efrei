@@ -30,4 +30,9 @@ export class ChatResolver {
     await this.chatService.addMessageToChatQueue(chatId, message);
     return true;
   }
+
+  @Mutation(() => Chat)
+  addUser(@Args('user', {type: () => InputUser}) user: InputUser, @Args('chatId') chatId: string): Chat {
+    return this.chatService.addUser(user, chatId);
+  }
 }

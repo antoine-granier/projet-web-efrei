@@ -72,4 +72,20 @@ export class ChatService {
     this.chats.push(chat);
     return chat;
   }
+
+  addUser(user: User, chatId: string): Chat {
+    const chat: Chat = this.chats.find(chat => chat.id = chatId);
+    if(chat) {
+      chat.users.push(user);
+      this.chats = this.chats.map(c => {
+        if(c.id === chatId) {
+          return chat;
+        }
+        return c;
+      })
+      return chat;
+    } else {
+      return null;
+    }
+  }
 }
