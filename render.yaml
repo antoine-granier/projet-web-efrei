@@ -8,6 +8,7 @@ services:
 
   - type: web
     name: nest
-    runtime: docker
+    runtime: image
+    plan: free
     image:
       url: zeeeartiste/back-chat-app:latest
