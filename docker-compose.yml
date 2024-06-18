@@ -6,7 +6,7 @@ services:
       - '6379:6379'
 
   nest:
-    image: zeeeartiste/back-chat-app
+    image: zeeeartiste/back-chat-app:latest
     ports:
       - '3000:3000'
     depends_on: ['redis']
