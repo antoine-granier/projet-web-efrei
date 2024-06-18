@@ -18,7 +18,7 @@ import { MessageModule } from './message/message.module';
     }),
     BullModule.forRoot({
       redis: {
-        host: 'localhost',
+        host: 'redis',
         port: 6379,
       },
     }),
