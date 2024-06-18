@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ChatService } from 'src/chat/chat.service';
-import { Chat } from 'src/models/chat.model';
-import { Message } from 'src/models/message.model';
-import { User } from 'src/models/user.model';
+import { ChatService } from '../chat/chat.service';
+import { Chat } from '../models/chat.model';
+import { Message } from '../models/message.model';
+import { User } from '../models/user.model';
 
 @Injectable()
 export class MessageService {

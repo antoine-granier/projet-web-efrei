@@ -1,8 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MessageService } from './message.service';
-import { Message } from 'src/models/message.model';
-import { InputUser, User } from 'src/models/user.model';
-import { Chat, InputChat } from 'src/models/chat.model';
+import { Message } from '../models/message.model';
+import { InputUser } from '../models/user.model';
+import { InputChat } from '../models/chat.model';
 
 @Resolver()
 export class MessageResolver {

@@ -2,8 +2,8 @@ import { InjectQueue } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bull';
 import * as Bull from 'bull';
-import { Chat } from 'src/models/chat.model';
-import { User } from 'src/models/user.model';
+import { Chat } from '../models/chat.model';
+import { User } from '../models/user.model';
 import { ChatProcessor } from './chat.processor';
 
 @Injectable()

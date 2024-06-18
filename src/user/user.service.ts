@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from 'src/models/user.model';
+import { User } from '../models/user.model';
 
 @Injectable()
 export class UserService {
@@ -11,7 +11,7 @@ export class UserService {
 
   create(name: string, email: string): User {
     const user = { id: Date.now().toString(), name, email };
-    // this.users.push(user);k-
+    this.users.push(user);
     return user;
   }
 }

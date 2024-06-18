@@ -1,7 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ChatService } from './chat.service';
-import { Chat } from 'src/models/chat.model';
-import { InputUser, User } from 'src/models/user.model';
+import { Chat } from '../models/chat.model';
+import { InputUser } from '../models/user.model';
 
 @Resolver()
 export class ChatResolver {
