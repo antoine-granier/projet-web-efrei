@@ -4,8 +4,7 @@ services:
   - type: redis
     name: redis
     plan: free
-    ipAllowList:
-      - source: 0.0.0.0/0
+    ipAllowList: []
 
   - type: web
     name: nest
@@ -16,5 +15,4 @@ services:
       - key: REDIS_HOST
         value: redis
     runtime: docker
-    healthCheckPath: /
     
