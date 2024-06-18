@@ -18,12 +18,22 @@ export class ChatService {
   ) {}
 
   async createChatQueue(chatId: string): Promise<Bull.Queue> {
+    console.log('createChatQueue');
+    
     if (!this.chatQueues.has(chatId)) {
       const chatQueue = new Bull(`chat-${chatId}`);
 
+      console.log(chatQueue);
+      
+      
       chatQueue.process('newMessage', async (job: any) => {
+      console.log('newMessage');
+
         await this.chatProcessor.handleNewMessage(job);
-      });
+        });
+        
+        
+      console.log('after newMessage');
 
       chatQueue.on('completed', (job) => {
         console.log(`Job ${job.id} has been completed`);
