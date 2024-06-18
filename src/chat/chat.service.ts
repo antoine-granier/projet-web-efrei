@@ -18,23 +18,21 @@ export class ChatService {
   ) {}
 
   async createChatQueue(chatId: string): Promise<Bull.Queue> {
-    console.log('createChatQueue');
-    
     if (!this.chatQueues.has(chatId)) {
-      const chatQueue = new Bull(`chat-${chatId}`);
 
-      console.log(chatQueue);
-      
-      
+      const redisConfig = {
+        host: 'redis',
+        port: 6379,
+      };
+      const chatQueue = new Bull(`chat-${chatId}`, {
+        redis: redisConfig,
+      });
+
       chatQueue.process('newMessage', async (job: any) => {
         console.log('newMessage');
-
         await this.chatProcessor.handleNewMessage(job);
         });
         
-        
-      console.log('after newMessage');
-
       chatQueue.on('completed', (job) => {
         console.log(`Job ${job.id} has been completed`);
       });
@@ -51,6 +49,7 @@ export class ChatService {
     try {
       const queue = this.chatQueues.get(chatId);
       await queue.add('newMessage', { message });
+      
     } catch (error) {
       this.logger.error(
         `Failed to add message to chat queue: ${error.message}`,

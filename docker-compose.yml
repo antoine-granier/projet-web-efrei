@@ -9,6 +9,7 @@ services:
 
   nest:
     image: zeeeartiste/back-chat-app:latest
+    # build: .
     ports:
       - '3000:3000'
     depends_on: ['redis']

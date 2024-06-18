@@ -16,12 +16,12 @@ import { MessageModule } from './message/message.module';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
-    BullModule.forRoot({
-      redis: {
-        host: 'redis',
-        port: 6379,
-      },
-    }),
+    // BullModule.forRoot({
+    //   redis: {
+    //     host: 'redis',
+    //     port: 6379,
+    //   },
+    // }),
     UserModule,
     ChatModule,
     MessageModule,
