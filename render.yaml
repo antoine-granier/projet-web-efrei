@@ -1,6 +1,6 @@
 services:
   - name: redis
-    type: service
+    type: redis
     env: docker
     docker:
       image: redis:latest
