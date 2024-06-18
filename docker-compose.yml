@@ -4,3 +4,9 @@ services:
     image: 'redis:latest'
     ports:
       - '6379:6379'
+
+  nest:
+    image: zeeeartiste/back-chat-app
+    ports:
+      - '3000:3000'
+    depends_on: ['redis']
