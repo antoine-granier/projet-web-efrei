@@ -18,11 +18,13 @@ export class ChatResolver {
   }
 
   @Mutation(() => Chat)
-  createChat(@Args('users', {type: () => [InputUser]}) users: InputUser[]): Chat {
+  createChat(
+    @Args('users', { type: () => [InputUser] }) users: InputUser[],
+  ): Chat {
     return this.chatService.create(users);
   }
 
-  @Mutation(returns => Boolean)
+  @Mutation((returns) => Boolean)
   async addMessageToChat(
     @Args('chatId') chatId: string,
     @Args('message') message: string,
@@ -32,7 +34,10 @@ export class ChatResolver {
   }
 
   @Mutation(() => Chat)
-  addUser(@Args('user', {type: () => InputUser}) user: InputUser, @Args('chatId') chatId: string): Chat {
+  addUser(
+    @Args('user', { type: () => InputUser }) user: InputUser,
+    @Args('chatId') chatId: string,
+  ): Chat {
     return this.chatService.addUser(user, chatId);
   }
 }

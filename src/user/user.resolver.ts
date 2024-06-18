@@ -12,10 +12,7 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
-  createUser(
-    @Args('name') name: string,
-    @Args('email') email: string,
-  ): User {
+  createUser(@Args('name') name: string, @Args('email') email: string): User {
     return this.userService.create(name, email);
   }
 }
