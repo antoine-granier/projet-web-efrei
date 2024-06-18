@@ -1,0 +1,22 @@
+services:
+  - name: redis
+    type: service
+    env: docker
+    docker:
+      image: redis:latest
+    plan: free
+    ports:
+      - containerPort: 6379
+        externalPort: 6379
+
+  - name: nest
+    type: web
+    env: docker
+    docker:
+      image: zeeeartiste/back-chat-app:latest
+    plan: free
+    ports:
+      - containerPort: 3000
+        externalPort: 3000
+    depends_on:
+      - redis
