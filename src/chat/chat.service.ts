@@ -21,7 +21,7 @@ export class ChatService {
     if (!this.chatQueues.has(chatId)) {
 
       const redisConfig = {
-        host: 'redis://red-cpopjb6ehbks73eob2pg',
+        host: 'red-cpopjb6ehbks73eob2pg',
         port: 6379,
       };
       const chatQueue = new Bull(`chat-${chatId}`, {
