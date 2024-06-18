@@ -27,7 +27,7 @@ export class ChatService {
       
       
       chatQueue.process('newMessage', async (job: any) => {
-      console.log('newMessage');
+        console.log('newMessage');
 
         await this.chatProcessor.handleNewMessage(job);
         });
