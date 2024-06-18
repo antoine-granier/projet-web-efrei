@@ -7,7 +7,7 @@ services:
     ipAllowList: []
 
   - type: web
-    name: nest
+    name: nest-V1
     runtime: image
     plan: free
     image:
