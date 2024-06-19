@@ -14,14 +14,14 @@ type User {
 
 type Chat {
   id: ID!
-  users: [User!]!
+  users: [String!]!
 }
 
 type Message {
   id: ID!
   content: String!
-  author: User!
-  chat: Chat!
+  authorId: User!
+  chatId: Chat!
 }
 
 type Query {
@@ -35,19 +35,8 @@ type Query {
 
 type Mutation {
   createUser(name: String!, email: String!): User!
-  createChat(users: [InputUser!]!): Chat!
-  addMessageToChat(chatId: String!, message: String!): Boolean!
-  addUser(user: InputUser!, chatId: String!): Chat!
-  createMessage(content: String!, author: InputUser!, chat: InputChat!): Message!
-}
-
-input InputUser {
-  id: ID!
-  name: String!
-  email: String!
-}
-
-input InputChat {
-  id: ID!
-  users: [InputUser!]!
+  createChat(userIds: [String!]!): Chat!
+  addMessageToChat(chatId: String!, message: String!, author: String!): Boolean!
+  addUser(userId: String!, chatId: String!): Chat!
+  createMessage(content: String!, author: String!, chat: String!): Message!
 }
