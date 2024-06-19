@@ -1,7 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ChatService } from './chat.service';
 import { Chat } from '../models/chat.model';
-import { InputUser } from '../models/user.model';
 
 @Resolver()
 export class ChatResolver {
@@ -19,25 +18,26 @@ export class ChatResolver {
 
   @Mutation(() => Chat)
   createChat(
-    @Args('users', { type: () => [InputUser] }) users: InputUser[],
+    @Args('userIds', { type: () => [String] }) userIds: string[],
   ): Chat {
-    return this.chatService.create(users);
+    return this.chatService.create(userIds);
   }
 
   @Mutation(() => Boolean)
   async addMessageToChat(
     @Args('chatId') chatId: string,
     @Args('message') message: string,
+    @Args('author') author: string
   ) {
-    await this.chatService.addMessageToChatQueue(chatId, message);
+    await this.chatService.addMessageToChatQueue(chatId, message, author);
     return true;
   }
 
   @Mutation(() => Chat)
   addUser(
-    @Args('user', { type: () => InputUser }) user: InputUser,
+    @Args('userId') userId: string,
     @Args('chatId') chatId: string,
   ): Chat {
-    return this.chatService.addUser(user, chatId);
+    return this.chatService.addUser(userId, chatId);
   }
 }

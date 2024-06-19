@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ChatService } from '../chat/chat.service';
-import { Chat } from '../models/chat.model';
 import { Message } from '../models/message.model';
-import { User } from '../models/user.model';
 
 @Injectable()
 export class MessageService {
@@ -15,13 +13,13 @@ export class MessageService {
   }
 
   findByChat(chatId: string): Message[] {
-    return this.messages.filter((message) => message.chat.id === chatId);
+    return this.messages.filter((message) => message.chatId === chatId);
   }
 
-  create(content: string, author: User, chat: Chat): Message {
-    const message = { id: Date.now().toString(), content, author, chat };
+  create(content: string, authorId: string, chatId: string): Message {
+    const message = { id: Date.now().toString(), content, authorId, chatId };
     this.messages.push(message);
-    this.chatService.addMessageToChatQueue(chat.id, message.content);
+    this.chatService.addMessageToChatQueue(chatId, message.content, authorId);
     return message;
   }
 }

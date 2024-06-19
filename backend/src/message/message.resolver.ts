@@ -1,8 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MessageService } from './message.service';
 import { Message } from '../models/message.model';
-import { InputUser } from '../models/user.model';
-import { InputChat } from '../models/chat.model';
 
 @Resolver()
 export class MessageResolver {
@@ -21,8 +19,8 @@ export class MessageResolver {
   @Mutation(() => Message)
   createMessage(
     @Args('content') content: string,
-    @Args('author') author: InputUser,
-    @Args('chat', { type: () => InputChat }) chat: InputChat,
+    @Args('author') author: string,
+    @Args('chat') chat: string,
   ): Message {
     return this.messageService.create(content, author, chat);
   }

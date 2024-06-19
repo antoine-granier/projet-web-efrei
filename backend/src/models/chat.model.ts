@@ -1,20 +1,10 @@
-import { Field, ID, InputType, ObjectType } from '@nestjs/graphql';
-import { InputUser, User } from './user.model';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class Chat {
   @Field(() => ID)
   id: string;
 
-  @Field(() => [User])
-  users: User[];
-}
-
-@InputType()
-export class InputChat {
-  @Field(() => ID)
-  id: string;
-
-  @Field(() => [InputUser])
-  users: InputUser[];
+  @Field(() => [String])
+  users: string[];
 }
