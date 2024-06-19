@@ -10,6 +10,8 @@ import { ChatModule } from './chat/chat.module';
 import { MessageModule } from './message/message.module';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
   imports: [
@@ -24,6 +26,18 @@ import { BullModule } from '@nestjs/bull';
         port: parseInt(process.env.REDIS_PORT),
       }
     }),
+    CacheModule.register({
+      isGlobal: true,  
+      useFactory: async () => ({
+        store: await redisStore({
+          socket: {  
+            host: process.env.REDIS_HOST,
+            port: parseInt(process.env.REDIS_PORT),
+          },
+          ttl: 5000
+        }),     
+      }),
+    }),  
     UserModule,
     ChatModule,
     MessageModule,
