@@ -2,12 +2,12 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { User } from '../models/user.model';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Store } from 'cache-manager';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
 
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Store, private prisma:PrismaClient){}
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Store, private prisma:PrismaService){}
 
   async findAll(): Promise<User[]> {
     const cache = await this.cacheManager.get<User[]>('users');
