@@ -20,13 +20,11 @@ export class ChatService {
   async createChatQueue(chatId: string): Promise<Bull.Queue> {
     if (!this.chatQueues.has(chatId)) {
 
-      const redisConfig = {
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT),
-      };
-      const chatQueue = new Bull(`chat-${chatId}`, {
-        redis: redisConfig,
-      });
+      // const redisConfig = {
+      //   host: process.env.REDIS_HOST,
+      //   port: parseInt(process.env.REDIS_PORT),
+      // };
+      const chatQueue = new Bull(`chat-${chatId}`);
 
       chatQueue.process('newMessage', async (job: any) => {
         console.log('newMessage');
