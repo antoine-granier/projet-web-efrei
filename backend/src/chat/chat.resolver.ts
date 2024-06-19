@@ -24,7 +24,7 @@ export class ChatResolver {
     return this.chatService.create(users);
   }
 
-  @Mutation((returns) => Boolean)
+  @Mutation(() => Boolean)
   async addMessageToChat(
     @Args('chatId') chatId: string,
     @Args('message') message: string,
