@@ -2,9 +2,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
   pull_request:
-    branches: ['main']
+    branches: ["main"]
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./backend
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.DOCKER_USERNAME }}/back-chat-app:latest
@@ -38,13 +38,38 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
 
-      - run: npm ci
-      - run: npm run build --if-present
-      # - run: npm test
-      # - run: npm test
+      - name: Install Dependencies Backend
+        run: |
+          cd backend
+          npm ci
+
+      - name: Build Backend
+        run: |
+          cd backend
+          npm run build --if-present
+
+      # - name: Test Backend
+      #   run: |
+      #     cd backend
+      #     npm test
 
       - name: Deploy on Render
         run: |
           curl -n ${{ secrets.DEPLOY_URL }} \
+
+      - name: Install Dependencies Frontend
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build --if-present
+
+        # - name: Test Frontend
+        #   run: |
+        #     cd frontend
+        #     npm test
