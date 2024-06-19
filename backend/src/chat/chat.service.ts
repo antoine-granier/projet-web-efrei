@@ -45,8 +45,8 @@ export class ChatService {
 
   async addMessageToChatQueue(chatId: string, message: string) {
     try {
-      const queue = this.chatQueues.get(chatId);
-      await queue.add('newMessage', { message });
+      // const queue = this.chatQueues.get(chatId);
+      await this.defaultQueue.add('newMessage', { message });
       
     } catch (error) {
       this.logger.error(
