@@ -55,7 +55,7 @@ export class ChatService {
         `Failed to add message to chat queue: ${error.message}`,
         error.stack,
       );
-      throw new Error('Failed to add message to chat queue');
+      // throw new Error('Failed to add message to chat queue');
     }
   }
 
