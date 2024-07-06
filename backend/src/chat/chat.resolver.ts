@@ -7,19 +7,19 @@ export class ChatResolver {
   constructor(private readonly chatService: ChatService) {}
 
   @Query(() => [Chat])
-  getChats(): Chat[] {
+  getChats():Promise<Chat[]> {
     return this.chatService.findAll();
   }
 
   @Query(() => [Chat])
-  getChatsByUser(@Args('userId') userId: string): Chat[] {
+  getChatsByUser(@Args('userId') userId: string):Promise<Chat[]> {
     return this.chatService.findByUser(userId);
   }
 
   @Mutation(() => Chat)
   createChat(
     @Args('userIds', { type: () => [String] }) userIds: string[],
-  ): Chat {
+  ): Promise<Chat> {
     return this.chatService.create(userIds);
   }
 
@@ -37,7 +37,7 @@ export class ChatResolver {
   addUser(
     @Args('userId') userId: string,
     @Args('chatId') chatId: string,
-  ): Chat {
+  ): Promise<Chat> {
     return this.chatService.addUser(userId, chatId);
   }
 }

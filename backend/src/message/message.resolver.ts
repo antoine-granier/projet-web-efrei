@@ -7,12 +7,12 @@ export class MessageResolver {
   constructor(private readonly messageService: MessageService) {}
 
   @Query(() => [Message])
-  getMessages(): Message[] {
+  getMessages(): Promise<Message[]> {
     return this.messageService.findAll();
   }
 
   @Query(() => [Message])
-  getMessagesByChat(@Args('chatId') chatId: string): Message[] {
+  getMessagesByChat(@Args('chatId') chatId: string):Promise<Message[]> {
     return this.messageService.findByChat(chatId);
   }
 
@@ -21,7 +21,7 @@ export class MessageResolver {
     @Args('content') content: string,
     @Args('author') author: string,
     @Args('chat') chat: string,
-  ): Message {
+  ): Promise<Message> {
     return this.messageService.create(content, author, chat);
   }
 }

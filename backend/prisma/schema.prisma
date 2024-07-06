@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // ou autre provider que vous utilisez
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,12 +12,12 @@ model User {
   name     String
   email    String    @unique
   messages Message[]
-  chats    Chat[]    @relation("UserChats")
+  chats    UserChat[]
 }
 
 model Chat {
-  id      String     @id @default(cuid())
-  users   User[]     @relation("UserChats")
+  id       String     @id @default(cuid())
+  users    UserChat[]
   messages Message[]
 }
 
@@ -29,4 +29,14 @@ model Message {
 
   author   User    @relation(fields: [authorId], references: [id])
   chat     Chat    @relation(fields: [chatId], references: [id])
+}
+
+model UserChat {
+  userId String
+  chatId String
+
+  user User @relation(fields: [userId], references: [id])
+  chat Chat @relation(fields: [chatId], references: [id])
+
+  @@id([userId, chatId])
 }

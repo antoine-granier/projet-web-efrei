@@ -11,8 +11,8 @@ export class Message {
   content: string;
 
   @Field(() => User)
-  authorId: string;
+  author: User;
 
   @Field(() => Chat)
-  chatId: string;
+  chat: Chat;
 }
