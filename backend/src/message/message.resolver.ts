@@ -12,7 +12,7 @@ export class MessageResolver {
   }
 
   @Query(() => [Message])
-  getMessagesByChat(@Args('chatId') chatId: string):Promise<Message[]> {
+  getMessagesByChat(@Args('chatId') chatId: string): Promise<Message[]> {
     return this.messageService.findByChat(chatId);
   }
 

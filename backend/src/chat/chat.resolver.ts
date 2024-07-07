@@ -7,12 +7,12 @@ export class ChatResolver {
   constructor(private readonly chatService: ChatService) {}
 
   @Query(() => [Chat])
-  getChats():Promise<Chat[]> {
+  getChats(): Promise<Chat[]> {
     return this.chatService.findAll();
   }
 
   @Query(() => [Chat])
-  getChatsByUser(@Args('userId') userId: string):Promise<Chat[]> {
+  getChatsByUser(@Args('userId') userId: string): Promise<Chat[]> {
     return this.chatService.findByUser(userId);
   }
 
@@ -27,7 +27,7 @@ export class ChatResolver {
   async addMessageToChat(
     @Args('chatId') chatId: string,
     @Args('message') message: string,
-    @Args('author') author: string
+    @Args('author') author: string,
   ) {
     await this.chatService.addMessageToChatQueue(chatId, message, author);
     return true;

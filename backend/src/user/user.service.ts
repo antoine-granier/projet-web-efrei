@@ -6,8 +6,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
-
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Store, private prisma:PrismaService){}
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Store,
+    private prisma: PrismaService,
+  ) {}
 
   async findAll(): Promise<User[]> {
     const cache = await this.cacheManager.get<User[]>('users');

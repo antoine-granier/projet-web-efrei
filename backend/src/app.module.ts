@@ -25,25 +25,25 @@ import { PrismaService } from './prisma/prisma.service';
       redis: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT),
-      }
+      },
     }),
     CacheModule.register({
-      isGlobal: true,  
+      isGlobal: true,
       useFactory: async () => ({
         store: await redisStore({
-          socket: {  
+          socket: {
             host: process.env.REDIS_HOST,
             port: parseInt(process.env.REDIS_PORT),
           },
-          ttl: 5000
-        }),     
+          ttl: 5000,
+        }),
       }),
-    }),  
+    }),
     UserModule,
     ChatModule,
     MessageModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AppResolver,PrismaService],
+  providers: [AppService, AppResolver, PrismaService],
 })
 export class AppModule {}

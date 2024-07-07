@@ -10,7 +10,7 @@ export class MessageService {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Store,
     private prisma: PrismaService,
-    private readonly chatService: ChatService
+    private readonly chatService: ChatService,
   ) {}
 
   async findAll(): Promise<Message[]> {
@@ -18,7 +18,7 @@ export class MessageService {
     if (cache) {
       return cache;
     }
-  
+
     try {
       const messagesData = await this.prisma.message.findMany({
         include: {
@@ -39,17 +39,17 @@ export class MessageService {
           },
         },
       });
-  
-      const transformedMessages: Message[] = messagesData.map(message => ({
+
+      const transformedMessages: Message[] = messagesData.map((message) => ({
         ...message,
         chat: {
           id: message.chat.id,
-          users: message.chat.users.map(userChat => ({
+          users: message.chat.users.map((userChat) => ({
             id: userChat.user.id,
             name: userChat.user.name,
             email: userChat.user.email,
           })),
-          messages: message.chat.messages.map(chatMessage => ({
+          messages: message.chat.messages.map((chatMessage) => ({
             id: chatMessage.id,
             content: chatMessage.content,
             authorId: chatMessage.authorId,
@@ -67,21 +67,26 @@ export class MessageService {
           })),
         },
       }));
-  
+
       await this.cacheManager.set('messages', transformedMessages);
       return transformedMessages;
     } catch (error) {
       console.error('Error fetching messages:', error);
-      throw new HttpException('Could not fetch messages', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Could not fetch messages',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   async findByChat(chatId: string): Promise<Message[]> {
-    const cache = await this.cacheManager.get<Message[]>(`messages-chat-${chatId}`);
+    const cache = await this.cacheManager.get<Message[]>(
+      `messages-chat-${chatId}`,
+    );
     if (cache) {
       return cache;
     }
-  
+
     try {
       const messagesData = await this.prisma.message.findMany({
         where: { chatId },
@@ -103,17 +108,17 @@ export class MessageService {
           },
         },
       });
-  
-      const transformedMessages: Message[] = messagesData.map(message => ({
+
+      const transformedMessages: Message[] = messagesData.map((message) => ({
         ...message,
         chat: {
           id: message.chat.id,
-          users: message.chat.users.map(userChat => ({
+          users: message.chat.users.map((userChat) => ({
             id: userChat.user.id,
             name: userChat.user.name,
             email: userChat.user.email,
           })),
-          messages: message.chat.messages.map(chatMessage => ({
+          messages: message.chat.messages.map((chatMessage) => ({
             id: chatMessage.id,
             content: chatMessage.content,
             authorId: chatMessage.authorId,
@@ -131,17 +136,26 @@ export class MessageService {
           })),
         },
       }));
-  
-      await this.cacheManager.set(`messages-chat-${chatId}`, transformedMessages);
+
+      await this.cacheManager.set(
+        `messages-chat-${chatId}`,
+        transformedMessages,
+      );
       return transformedMessages;
     } catch (error) {
       console.error('Error fetching messages for chat:', error);
-      throw new HttpException('Could not fetch messages for chat', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Could not fetch messages for chat',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
-  
 
-  async create(content: string, authorId: string, chatId: string): Promise<Message> {
+  async create(
+    content: string,
+    authorId: string,
+    chatId: string,
+  ): Promise<Message> {
     try {
       const messageData = await this.prisma.message.create({
         data: { content, authorId, chatId },
@@ -163,17 +177,17 @@ export class MessageService {
           },
         },
       });
-  
+
       const transformedMessage: Message = {
         ...messageData,
         chat: {
           id: messageData.chat.id,
-          users: messageData.chat.users.map(userChat => ({
+          users: messageData.chat.users.map((userChat) => ({
             id: userChat.user.id,
             name: userChat.user.name,
             email: userChat.user.email,
           })),
-          messages: messageData.chat.messages.map(chatMessage => ({
+          messages: messageData.chat.messages.map((chatMessage) => ({
             id: chatMessage.id,
             content: chatMessage.content,
             authorId: chatMessage.authorId,
@@ -191,9 +205,12 @@ export class MessageService {
           })),
         },
       };
-  
-      await this.cacheManager.set(`messages-${transformedMessage.id}`, transformedMessage);
-  
+
+      await this.cacheManager.set(
+        `messages-${transformedMessage.id}`,
+        transformedMessage,
+      );
+
       const messagesData = await this.prisma.message.findMany({
         where: { chatId },
         include: {
@@ -214,17 +231,17 @@ export class MessageService {
           },
         },
       });
-  
-      const transformedMessages: Message[] = messagesData.map(msg => ({
+
+      const transformedMessages: Message[] = messagesData.map((msg) => ({
         ...msg,
         chat: {
           id: msg.chat.id,
-          users: msg.chat.users.map(userChat => ({
+          users: msg.chat.users.map((userChat) => ({
             id: userChat.user.id,
             name: userChat.user.name,
             email: userChat.user.email,
           })),
-          messages: msg.chat.messages.map(chatMessage => ({
+          messages: msg.chat.messages.map((chatMessage) => ({
             id: chatMessage.id,
             content: chatMessage.content,
             authorId: chatMessage.authorId,
@@ -242,15 +259,20 @@ export class MessageService {
           })),
         },
       }));
-  
-      await this.cacheManager.set(`messages-chat-${chatId}`, transformedMessages);
-  
+
+      await this.cacheManager.set(
+        `messages-chat-${chatId}`,
+        transformedMessages,
+      );
+
       this.chatService.addMessageToChatQueue(chatId, content, authorId);
       return transformedMessage;
     } catch (error) {
       console.error('Error creating message:', error);
-      throw new HttpException('Could not create message', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Could not create message',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
-  
 }
