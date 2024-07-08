@@ -29,6 +29,7 @@ type Query {
   result: Result!
   getUsers: [User!]!
   getUserById(userId: String!): User!
+  getUserByEmail(email: String!): User!
   getChats: [Chat!]!
   getChatsByUser(userId: String!): [Chat!]!
   getMessages: [Message!]!

@@ -3,7 +3,7 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Queue } from 'bull';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Store } from 'cache-manager';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { Chat } from '../models/chat.model';
 
 @Injectable()
@@ -88,6 +88,71 @@ export class ChatService {
     } catch (error) {
       console.error('Error fetching all chats:', error);
       throw new Error('Could not fetch all chats');
+    }
+  }
+
+  async findById(chatId: string): Promise<Chat> {
+    const cache = await this.cacheManager.get<Chat>(`chats-${chatId}`);
+    if (cache) {
+      return cache;
+    }
+
+    try {
+      const chatData = await this.prisma.chat.findUnique({
+        where: {
+          id: chatId
+        },
+        include: {
+          users: {
+            include: {
+              user: true,
+            },
+          },
+          messages: {
+            include: {
+              author: true,
+            },
+          },
+        },
+      });
+
+      if(!chatData) return null;
+
+      const transformedChat: Chat = {
+        id: chatData.id,
+        users: chatData.users.map((userChat) => ({
+          id: userChat.user.id,
+          name: userChat.user.name,
+          email: userChat.user.email,
+        })),
+        messages: chatData.messages.map((message) => ({
+          id: message.id,
+          content: message.content,
+          authorId: message.authorId,
+          chatId: message.chatId,
+          author: {
+            id: message.author.id,
+            name: message.author.name,
+            email: message.author.email,
+          },
+          chat: {
+            id: chatData.id,
+            users: chatData.users.map((userChat) => ({
+              id: userChat.user.id,
+              name: userChat.user.name,
+              email: userChat.user.email,
+            })),
+            messages: [], // Exclure les messages imbriqués pour éviter la référence circulaire
+          },
+        })),
+      };
+
+      await this.cacheManager.set(`chats-${chatId}`, transformedChat);
+
+      return transformedChat;
+    } catch (error) {
+      console.error('Error fetching chat for id:', error);
+      return null
     }
   }
 

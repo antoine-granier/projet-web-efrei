@@ -1,6 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from '../models/user.model';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Resolver()
 export class UserResolver {
@@ -13,14 +14,28 @@ export class UserResolver {
 
   @Query(() => User)
   async getUserById(@Args('userId') userId: string): Promise<User> {
-    return this.userService.findById(userId);
+    const user = await this.userService.findById(userId);
+    if(!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    return user;
+  }
+
+  @Query(() => User)
+  async getUserByEmail(@Args('email') email: string): Promise<User> {
+    const user = await this.userService.findByEmail(email);
+    if(!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    return user;
   }
 
   @Mutation(() => User)
-  createUser(
+  async createUser(
     @Args('name') name: string,
     @Args('email') email: string,
   ): Promise<User> {
+
+    const user = await this.userService.findByEmail(email)
+    if(user) {
+      throw new HttpException('User exist', HttpStatus.CONFLICT);
+    }
     return this.userService.create(name, email);
   }
 }

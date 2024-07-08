@@ -25,6 +25,7 @@ import { PrismaService } from './prisma/prisma.service';
       redis: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT),
+        maxRetriesPerRequest: 3
       },
     }),
     CacheModule.register({
