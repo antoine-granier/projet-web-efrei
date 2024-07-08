@@ -73,8 +73,3 @@ jobs:
       - name: Deploy on Render
         run: |
           curl -n ${{ secrets.DEPLOY_FRONT_URL }} \
-
-        # - name: Test Frontend
-        #   run: |
-        #     cd frontend
-        #     npm test
