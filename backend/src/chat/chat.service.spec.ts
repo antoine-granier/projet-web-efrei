@@ -35,6 +35,9 @@ describe('ChatResolver', () => {
     resolver = module.get<ChatResolver>(ChatResolver);
     chatService = module.get<ChatService>(ChatService);
     userService = module.get<UserService>(UserService);
+
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
   });
 
   afterEach(() => {
@@ -103,13 +106,13 @@ describe('ChatResolver', () => {
 
   describe('addMessageToChat', () => {
     it('should add a message to the chat', async () => {
-      const chat = { id: '1', users: [], messages: [] };
+      const chat = { id: '1', users: [{ id: '1', name: 'User' }], messages: [] };
       const user = { id: '1', name: 'User', email: 'user@example.com' };
       mockChatService.findById.mockResolvedValue(chat);
       mockUserService.findById.mockResolvedValue(user);
-
+  
       const result = await resolver.addMessageToChat('1', 'message', '1');
-
+  
       expect(result).toBe(true);
       expect(mockChatService.findById).toHaveBeenCalledWith('1');
       expect(mockUserService.findById).toHaveBeenCalledWith('1');

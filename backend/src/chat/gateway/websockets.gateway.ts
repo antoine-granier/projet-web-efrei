@@ -9,7 +9,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
 import { ChatService } from '../chat.service';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../../auth/auth.guard';
 
 @WebSocketGateway({
   cors: {
@@ -17,7 +17,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
   },
   namespace: '/chat',
 })
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private readonly logger = new Logger(ChatGateway.name);

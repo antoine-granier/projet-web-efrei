@@ -40,6 +40,9 @@ describe('MessageResolver', () => {
     messageService = module.get<MessageService>(MessageService);
     chatService = module.get<ChatService>(ChatService);
     userService = module.get<UserService>(UserService);
+
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
   });
 
   afterEach(() => {
