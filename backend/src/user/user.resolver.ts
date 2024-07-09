@@ -2,7 +2,6 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from '../models/user.model';
 import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from '../auth/jwt-auth.guard';
 import { isValidEmail } from '../utils';
 
 @Resolver()
