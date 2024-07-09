@@ -8,7 +8,9 @@ RUN npm ci
 
 COPY . .
 
-RUN npx prisma generate
+RUN npx prisma generate dev
+
+RUN npx prisma migrate
 
 RUN npm run build --if-present
 
