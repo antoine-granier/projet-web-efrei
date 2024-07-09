@@ -84,6 +84,12 @@ export class UserService {
     if (!isValidEmail(email)) {
       throw new HttpException('Invalid email format', HttpStatus.BAD_REQUEST);
     }
+
+    const existingUser = await this.findByEmail(email);
+    if (existingUser) {
+      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+    }
+    
     let user: User;
     try {
       user = await this.prisma.user.create({
@@ -97,10 +103,6 @@ export class UserService {
       );
     }
 
-    const existingUser = await this.findByEmail(email);
-    if (existingUser) {
-      throw new HttpException('User already exists', HttpStatus.CONFLICT);
-    }
 
     await this.setCachedData(`users-${user.id}`, user);
     const users = await this.prisma.user.findMany();
