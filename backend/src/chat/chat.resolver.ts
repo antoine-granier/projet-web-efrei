@@ -46,6 +46,7 @@ export class ChatResolver {
     const chat = await this.chatService.findById(chatId);
     if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
 
+    if(!(chat.users.find((user)=>user.id == author))) throw new HttpException('User not in this chat', HttpStatus.NOT_FOUND);
     const user = await this.userService.findById(author);
     if (!user)
       throw new HttpException('Author not found', HttpStatus.NOT_FOUND);

@@ -13,6 +13,7 @@ import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { PrismaService } from './prisma/prisma.service';
+import { ChatGateway } from './chat/gateway/websockets.gateway';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
