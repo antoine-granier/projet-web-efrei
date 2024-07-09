@@ -5,7 +5,7 @@ export type User = {
   token: string;
   email: string;
   name: string;
-  id: number | undefined;
+  id: string;
 };
 
 type UserStore = {
