@@ -3,7 +3,6 @@ import { ChatService } from './chat.service';
 import { Chat } from '../models/chat.model';
 import { UserService } from '../user/user.service';
 import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from 'src/auth/jwt-auth.guard';
 import { isValidEmail } from 'src/utils';
 
 @Resolver()
