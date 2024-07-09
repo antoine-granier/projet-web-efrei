@@ -80,19 +80,27 @@ export class UserService {
     return user;
   }
 
-  async create(name: string, email: string): Promise<User> {
+  async create(name: string, email: string, password: string): Promise<User> {
     if (!isValidEmail(email)) {
       throw new HttpException('Invalid email format', HttpStatus.BAD_REQUEST);
+    }
+    let user: User;
+    try {
+      user = await this.prisma.user.create({
+        data: { name, email, password },
+      });
+    } catch (error) {
+      console.error(`Error creating user with email: ${email}`, error);
+      throw new HttpException(
+        'User creation failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const existingUser = await this.findByEmail(email);
     if (existingUser) {
       throw new HttpException('User already exists', HttpStatus.CONFLICT);
     }
-
-    const user = await this.prisma.user.create({
-      data: { name, email },
-    });
 
     await this.setCachedData(`users-${user.id}`, user);
     const users = await this.prisma.user.findMany();

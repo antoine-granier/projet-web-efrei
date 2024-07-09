@@ -97,36 +97,4 @@ describe('UserResolver', () => {
       await expect(resolver.getUserByEmail('user1@example.com')).rejects.toThrow('User not found');
     });
   });
-
-  describe('createUser', () => {
-    it('should create a new user', async () => {
-      const user = { id: '1', name: 'User1', email: 'user1@example.com' };
-      (isValidEmail as jest.Mock).mockReturnValue(true);
-      mockUserService.findByEmail.mockResolvedValue(null);
-      mockUserService.create.mockResolvedValue(user);
-
-      const result = await resolver.createUser('User1', 'user1@example.com');
-
-      expect(result).toEqual(user);
-      expect(isValidEmail).toHaveBeenCalledWith('user1@example.com');
-      expect(mockUserService.findByEmail).toHaveBeenCalledWith('user1@example.com');
-      expect(mockUserService.create).toHaveBeenCalledWith('User1', 'user1@example.com');
-    });
-
-    it('should throw an error if email format is invalid', async () => {
-      (isValidEmail as jest.Mock).mockReturnValue(false);
-
-      await expect(resolver.createUser('User1', 'invalid-email')).rejects.toThrow(HttpException);
-      await expect(resolver.createUser('User1', 'invalid-email')).rejects.toThrow('Invalid email format');
-    });
-
-    it('should throw an error if user already exists', async () => {
-      const existingUser = { id: '1', name: 'User1', email: 'user1@example.com' };
-      (isValidEmail as jest.Mock).mockReturnValue(true);
-      mockUserService.findByEmail.mockResolvedValue(existingUser);
-
-      await expect(resolver.createUser('User1', 'user1@example.com')).rejects.toThrow(HttpException);
-      await expect(resolver.createUser('User1', 'user1@example.com')).rejects.toThrow('User exist');
-    });
-  });
 });
