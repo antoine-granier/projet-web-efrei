@@ -24,16 +24,8 @@ function App() {
       element: <Login />,
     },
     {
-      path: "/register",
-      element: <div>Register</div>,
-    },
-    {
       path: "/",
-      element: isAuthenticated ? (
-        <LayoutPage modules={modules} />
-      ) : (
-        <Navigate to="/login" />
-      ),
+      element: isAuthenticated ? <LayoutPage modules={modules} /> : <Login />,
       children: [
         {
           path: "",
