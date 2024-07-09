@@ -3,7 +3,6 @@ import { ChatService } from './chat.service';
 import { Chat } from '../models/chat.model';
 import { UserService } from '../user/user.service';
 import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Resolver()
 export class ChatResolver {
@@ -13,13 +12,11 @@ export class ChatResolver {
   ) {}
 
   @Query(() => [Chat])
-  // @UseGuards(GqlAuthGuard)
   getChats(): Promise<Chat[]> {
     return this.chatService.findAll();
   }
 
   @Query(() => [Chat])
-  // @UseGuards(GqlAuthGuard)
   async getChatsByUser(@Args('userId') userId: string): Promise<Chat[]> {
     const user = await this.userService.findById(userId);
     if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -27,7 +24,6 @@ export class ChatResolver {
   }
 
   @Mutation(() => Chat)
-  // @UseGuards(GqlAuthGuard)
   async createChat(
     @Args('userIds', { type: () => [String] }) userIds: string[],
   ): Promise<Chat> {
@@ -44,7 +40,6 @@ export class ChatResolver {
   }
 
   @Mutation(() => Boolean)
-  // @UseGuards(GqlAuthGuard)
   async addMessageToChat(
     @Args('chatId') chatId: string,
     @Args('message') message: string,
@@ -62,7 +57,6 @@ export class ChatResolver {
   }
 
   @Mutation(() => Chat)
-  // @UseGuards(GqlAuthGuard)
   async addUser(
     @Args('userId') userId: string,
     @Args('chatId') chatId: string,

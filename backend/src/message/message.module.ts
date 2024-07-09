@@ -4,10 +4,9 @@ import { MessageResolver } from './message.resolver';
 import { ChatModule } from '../chat/chat.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserModule } from '../user/user.module';
-import { AuthModule } from '../auth/auth.module';
 
 @Module({
   providers: [MessageService, MessageResolver, PrismaService],
-  imports: [ChatModule, UserModule, AuthModule],
+  imports: [ChatModule, UserModule],
 })
 export class MessageModule {}

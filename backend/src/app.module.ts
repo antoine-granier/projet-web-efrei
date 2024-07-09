@@ -13,11 +13,9 @@ import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { PrismaService } from './prisma/prisma.service';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    AuthModule,
     ConfigModule.forRoot(),
     GraphQLModule.forRoot({
       driver: ApolloDriver,
