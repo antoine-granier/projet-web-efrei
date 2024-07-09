@@ -8,7 +8,11 @@ import { GqlAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Resolver()
 export class MessageResolver {
-  constructor(private readonly messageService: MessageService, private readonly chatService: ChatService, private readonly userService: UserService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly chatService: ChatService,
+    private readonly userService: UserService,
+  ) {}
 
   @Query(() => [Message])
   // @UseGuards(GqlAuthGuard)
@@ -20,7 +24,7 @@ export class MessageResolver {
   // @UseGuards(GqlAuthGuard)
   async getMessagesByChat(@Args('chatId') chatId: string): Promise<Message[]> {
     const chat = await this.chatService.findById(chatId);
-    if(!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
+    if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
     return this.messageService.findByChat(chatId);
   }
 
@@ -32,10 +36,12 @@ export class MessageResolver {
     @Args('chat') chat: string,
   ): Promise<Message> {
     const chatData = await this.chatService.findById(chat);
-    if(!chatData) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
+    if (!chatData)
+      throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
 
     const user = await this.userService.findById(author);
-    if(!user) throw new HttpException('Author not found', HttpStatus.NOT_FOUND);
+    if (!user)
+      throw new HttpException('Author not found', HttpStatus.NOT_FOUND);
 
     return this.messageService.create(content, author, chat);
   }

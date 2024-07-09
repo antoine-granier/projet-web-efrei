@@ -27,7 +27,7 @@ import { AuthModule } from './auth/auth.module';
       redis: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT),
-        maxRetriesPerRequest: 3
+        maxRetriesPerRequest: 3,
       },
     }),
     CacheModule.register({
