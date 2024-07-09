@@ -4,8 +4,12 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import LayoutPage from "./Pages/LayoutPage";
+import { useAuth0 } from "@auth0/auth0-react";
+import Login from "./Pages/Login";
 
 function App() {
+  const { isAuthenticated } = useAuth0();
+
   const modules = [
     {
       path: "home",
@@ -17,7 +21,7 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "/login",
-      element: <div>Login</div>,
+      element: <Login />,
     },
     {
       path: "/register",
@@ -25,7 +29,7 @@ function App() {
     },
     {
       path: "/",
-      element: true ? (
+      element: isAuthenticated ? (
         <LayoutPage modules={modules} />
       ) : (
         <Navigate to="/login" />
