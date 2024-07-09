@@ -10,7 +10,6 @@ type User {
   id: ID!
   name: String!
   email: String!
-  password: String!
 }
 
 type Message {
@@ -26,18 +25,6 @@ type Chat {
   messages: [Message!]!
 }
 
-type SignInReturn {
-  id: ID!
-  name: String!
-  email: String!
-  token: String!
-}
-
-type SignUpReturn {
-  success: Boolean!
-  message: String!
-}
-
 type Query {
   result: Result!
   getUsers: [User!]!
@@ -50,10 +37,9 @@ type Query {
 }
 
 type Mutation {
+  createUser(name: String!, email: String!): User!
   createChat(userIds: [String!]!): Chat!
   addMessageToChat(chatId: String!, message: String!, author: String!): Boolean!
   addUser(userId: String!, chatId: String!): Chat!
   createMessage(content: String!, author: String!, chat: String!): Message!
-  signIn(email: String!, password: String!): SignInReturn!
-  signUp(name: String!, email: String!, password: String!): SignUpReturn!
 }

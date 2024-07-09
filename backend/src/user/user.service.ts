@@ -85,11 +85,11 @@ export class UserService {
     return user;
   }
 
-  async create(name: string, email: string, password: string): Promise<User> {
+  async create(name: string, email: string): Promise<User> {
     let user: User;
     try {
       user = await this.prisma.user.create({
-        data: { name, email, password },
+        data: { name, email },
       });
     } catch (error) {
       console.error(`Error creating user with email: ${email}`, error);
