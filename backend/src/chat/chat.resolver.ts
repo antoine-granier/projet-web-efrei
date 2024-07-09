@@ -3,6 +3,7 @@ import { ChatService } from './chat.service';
 import { Chat } from '../models/chat.model';
 import { UserService } from '../user/user.service';
 import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import { isValidEmail } from 'src/utils';
 
 @Resolver()
 export class ChatResolver {
@@ -27,15 +28,12 @@ export class ChatResolver {
   async createChat(
     @Args('userIds', { type: () => [String] }) userIds: string[],
   ): Promise<Chat> {
-    await Promise.all(
-      userIds.map((id) => {
-        return new Promise(async (resolve, reject) => {
-          const user = await this.userService.findById(id);
-          if (!user) reject('User not found');
-          resolve(true);
-        });
-      }),
-    );
+    for (const id of userIds) {
+      const user = await this.userService.findById(id);
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+    }
     return this.chatService.create(userIds);
   }
 
@@ -65,7 +63,7 @@ export class ChatResolver {
     if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
 
     const user = await this.userService.findById(userId);
-    if (!user) throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
     return this.chatService.addUser(userId, chatId);
   }

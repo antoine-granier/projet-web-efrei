@@ -1,8 +1,9 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { User } from '../models/user.model';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Store } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
+import { User } from '../models/user.model';
+import { isValidEmail } from '../utils';
 
 @Injectable()
 export class UserService {
@@ -60,23 +61,17 @@ export class UserService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
+    if (!isValidEmail(email)) {
+      throw new HttpException('Invalid email format', HttpStatus.BAD_REQUEST);
+    }
+
     const cacheKey = `users-${email}`;
     const cache = await this.getCachedData<User>(cacheKey);
     if (cache) {
       return cache;
     }
 
-    let user: User;
-    try {
-      user = await this.prisma.user.findUnique({ where: { email: email } });
-    } catch (error) {
-      console.error(`Error fetching user by email: ${email}`, error);
-      throw new HttpException(
-        'Database query failed',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
+    const user = await this.prisma.user.findUnique({ where: { email: email } });
     if (!user) {
       return null;
     }
@@ -86,6 +81,9 @@ export class UserService {
   }
 
   async create(name: string, email: string, password: string): Promise<User> {
+    if (!isValidEmail(email)) {
+      throw new HttpException('Invalid email format', HttpStatus.BAD_REQUEST);
+    }
     let user: User;
     try {
       user = await this.prisma.user.create({
@@ -97,6 +95,11 @@ export class UserService {
         'User creation failed',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+
+    const existingUser = await this.findByEmail(email);
+    if (existingUser) {
+      throw new HttpException('User already exists', HttpStatus.CONFLICT);
     }
 
     await this.setCachedData(`users-${user.id}`, user);
