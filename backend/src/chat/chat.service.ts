@@ -100,7 +100,7 @@ export class ChatService {
     try {
       const chatData = await this.prisma.chat.findUnique({
         where: {
-          id: chatId
+          id: chatId,
         },
         include: {
           users: {
@@ -116,7 +116,7 @@ export class ChatService {
         },
       });
 
-      if(!chatData) return null;
+      if (!chatData) return null;
 
       const transformedChat: Chat = {
         id: chatData.id,
@@ -152,7 +152,7 @@ export class ChatService {
       return transformedChat;
     } catch (error) {
       console.error('Error fetching chat for id:', error);
-      return null
+      return null;
     }
   }
 

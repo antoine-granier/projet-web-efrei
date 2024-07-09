@@ -7,17 +7,19 @@ import { Logger } from '@nestjs/common';
 export class ChatProcessor {
   private readonly logger = new Logger(ChatProcessor.name);
 
-  constructor(private prisma: PrismaService,) {}
+  constructor(private prisma: PrismaService) {}
 
   @Process('newMessage')
-  async handleNewMessage(job: Job<{ message: string, userId: string, chatId: string }>) {    
+  async handleNewMessage(
+    job: Job<{ message: string; userId: string; chatId: string }>,
+  ) {
     const { message, userId, chatId } = job.data;
     console.log(`Processing message: ${message}`);
     try {
       await this.prisma.message.create({
-        data: { content: message, authorId: userId, chatId }
-      })
-    } catch(error) {
+        data: { content: message, authorId: userId, chatId },
+      });
+    } catch (error) {
       this.logger.error(
         `Failed to create message : ${error.message}`,
         error.stack,

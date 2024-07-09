@@ -7,7 +7,10 @@ import { GqlAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Resolver()
 export class ChatResolver {
-  constructor(private readonly chatService: ChatService, private readonly userService: UserService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly userService: UserService,
+  ) {}
 
   @Query(() => [Chat])
   // @UseGuards(GqlAuthGuard)
@@ -19,7 +22,7 @@ export class ChatResolver {
   // @UseGuards(GqlAuthGuard)
   async getChatsByUser(@Args('userId') userId: string): Promise<Chat[]> {
     const user = await this.userService.findById(userId);
-    if(!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     return this.chatService.findByUser(userId);
   }
 
@@ -28,13 +31,15 @@ export class ChatResolver {
   async createChat(
     @Args('userIds', { type: () => [String] }) userIds: string[],
   ): Promise<Chat> {
-    await Promise.all(userIds.map(id => {
-      return new Promise(async (resolve, reject) => {
-        const user = await this.userService.findById(id);
-        if(!user) reject("User not found");
-        resolve(true);
-      })
-    }))
+    await Promise.all(
+      userIds.map((id) => {
+        return new Promise(async (resolve, reject) => {
+          const user = await this.userService.findById(id);
+          if (!user) reject('User not found');
+          resolve(true);
+        });
+      }),
+    );
     return this.chatService.create(userIds);
   }
 
@@ -46,10 +51,11 @@ export class ChatResolver {
     @Args('author') author: string,
   ) {
     const chat = await this.chatService.findById(chatId);
-    if(!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
+    if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
 
     const user = await this.userService.findById(author);
-    if(!user) throw new HttpException('Author not found', HttpStatus.NOT_FOUND);
+    if (!user)
+      throw new HttpException('Author not found', HttpStatus.NOT_FOUND);
 
     await this.chatService.addMessageToChatQueue(chatId, message, author);
     return true;
@@ -62,10 +68,10 @@ export class ChatResolver {
     @Args('chatId') chatId: string,
   ): Promise<Chat> {
     const chat = await this.chatService.findById(chatId);
-    if(!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
+    if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
 
     const user = await this.userService.findById(userId);
-    if(!user) throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+    if (!user) throw new HttpException('user not found', HttpStatus.NOT_FOUND);
 
     return this.chatService.addUser(userId, chatId);
   }
