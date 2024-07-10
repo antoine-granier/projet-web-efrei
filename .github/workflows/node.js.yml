@@ -98,10 +98,12 @@ jobs:
 
       - name: Test Backend with Newman
         run: |
-          cd backend
-          npx newman run postman/projet-web-efrei.postman_collection.json -e postman/ENV.postman_environment.json
+          cd postman
+          npx newman run projet-web-efrei.postman_collection.json -e ENV.postman_environment.json
 
-     
+      - name: Run Migrate Database
+        run: |
+          cd backend
   
       - name: Deploy Backend on Render
         run: |

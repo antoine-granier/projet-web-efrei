@@ -11,31 +11,55 @@
 			"name": "Users",
 			"item": [
 				{
-					"name": "createUser",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "graphql",
-							"graphql": {
-								"query": "mutation createUser($name: String!, $email: String!) {\n    createUser(name: $name, email: $email) {\n        id\n        name\n        email\n    }\n}",
-								"variables": "{\n    \"name\": \"user1\",\n    \"email\": \"user1@mail.com\"\n}"
-							}
-						},
-						"url": {
-							"raw": "{{API}}/graphql",
-							"host": [
-								"{{API}}"
-							],
-							"path": [
-								"graphql"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "getUsers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required fields - id, name, and email\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.data.getUsers).to.be.an('array');",
+									"",
+									"    responseData.data.getUsers.forEach(function(user) {",
+									"        pm.expect(user).to.have.property('id');",
+									"        pm.expect(user).to.have.property('name');",
+									"        pm.expect(user).to.have.property('email');",
+									"    });",
+									"});",
+									"",
+									"",
+									"pm.test(\"GetUsers array is present and contains expected number of elements\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.data.getUsers).to.exist.and.to.be.an('array');",
+									"    pm.expect(responseData.data.getUsers).to.have.lengthOf.at.least(1);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -60,6 +84,41 @@
 				},
 				{
 					"name": "getUserById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Validate the structure of the 'getUserById' object\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.data.getUserById).to.have.property('id');",
+									"    pm.expect(responseData.data.getUserById).to.have.property('name');",
+									"    pm.expect(responseData.data.getUserById).to.have.property('email');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -67,7 +126,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "query getUserById($userId: String!) {\n    getUserById(userId: $userId) {\n        id\n        name\n        email\n    }\n}",
-								"variables": "{\n    \"userId\": \"clxlu1bqz0000qn0afsjlsd6a\"\n}"
+								"variables": "{\n    \"userId\": \"clyfmbjf70000t6mqrzuk8cyp\"\n}"
 							}
 						},
 						"url": {
@@ -84,6 +143,41 @@
 				},
 				{
 					"name": "getUserByEmail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is within an acceptable range\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"Validate schema for getUserByEmail - id, name, and email fields\", function () {",
+									"    const responseData = pm.response.json().data.getUserByEmail;",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.id).to.exist.and.to.be.a('string');",
+									"    pm.expect(responseData.name).to.exist.and.to.be.a('string');",
+									"    pm.expect(responseData.email).to.exist.and.to.be.a('string');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -112,15 +206,62 @@
 			"name": "Chats",
 			"item": [
 				{
-					"name": "addUser",
+					"name": "createChat",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"CreateChat object structure is valid\", function () {",
+									"  const responseData = pm.response.json();",
+									"  ",
+									"  pm.expect(responseData).to.be.an('object');",
+									"  pm.expect(responseData.data.createChat).to.exist.and.to.be.an('object');",
+									"  pm.expect(responseData.data.createChat.id).to.exist.and.to.be.a('string');",
+									"  pm.expect(responseData.data.createChat.users).to.exist.and.to.be.an('array');",
+									"  responseData.data.createChat.users.forEach(function(user) {",
+									"    pm.expect(user.id).to.exist.and.to.be.a('string');",
+									"  });",
+									"});",
+									"",
+									"",
+									"pm.test(\"Users array within createChat object is present and contains expected number of elements\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.data.createChat.users).to.exist.and.to.be.an('array');",
+									"    pm.expect(responseData.data.createChat.users).to.have.lengthOf(1);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "mutation addUser($userId: String!, $chatId: String!) {\n  addUser(userId: $userId, chatId: $chatId) {\n    id\n    users {\n      id\n      name\n      email\n    }\n  }\n}",
-								"variables": "{\n    \"userId\": \"clyd18ddm0000frst91tudu9c\",\n    \"chatId\": \"clyd2q0be0000vr43hjf8rpgz\"\n}"
+								"query": "mutation createChat($userIds: [String!]!) {\n  createChat(userIds: $userIds) {\n    id\n    users {\n        id\n    }\n}\n}\n",
+								"variables": "{\n  \"userIds\": [\n    \"clyfmbjf70000t6mqrzuk8cyp\"\n  ]\n}\n"
 							}
 						},
 						"url": {
@@ -136,15 +277,56 @@
 					"response": []
 				},
 				{
-					"name": "createChat",
+					"name": "addUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"AddUser object has the correct structure\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.data).to.exist.and.to.be.an('object');",
+									"    pm.expect(responseData.data.addUser).to.exist.and.to.be.an('object');",
+									"    pm.expect(responseData.data.addUser.id).to.exist.and.to.be.a('string');",
+									"    pm.expect(responseData.data.addUser.users).to.exist.and.to.be.an('array');",
+									"    responseData.data.addUser.users.forEach(function(user) {",
+									"        pm.expect(user.id).to.exist.and.to.be.a('string');",
+									"        pm.expect(user.name).to.exist.and.to.be.a('string');",
+									"        pm.expect(user.email).to.exist.and.to.be.a('string');",
+									"    });",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is within an acceptable range\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "mutation createChat($userIds: [String!]!) {\n  createChat(userIds: $userIds) {\n    id\n    users {\n        id\n    }\n}\n}\n",
-								"variables": "{\n  \"userIds\": [\n    \"clye6ddm10000ollgl3bmkwaq\"\n  ]\n}\n"
+								"query": "mutation addUser($userId: String!, $chatId: String!) {\n  addUser(userId: $userId, chatId: $chatId) {\n    id\n    users {\n      id\n      name\n      email\n    }\n  }\n}",
+								"variables": "{\n    \"userId\": \"clyfmexzl0001t6mqn49n6uen\",\n    \"chatId\": \"clyfmises0003t6mqwjyzg5ga\"\n}"
 							}
 						},
 						"url": {
@@ -161,6 +343,46 @@
 				},
 				{
 					"name": "addMessageToChat",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required fields\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.data).to.exist;",
+									"});",
+									"",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Validate the schema of the response data object\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.have.property('data').that.is.an('object').with.property('addMessageToChat');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -168,7 +390,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation addMessageToChat($chatId: String!, $message: String!, $author: String!) {\n    addMessageToChat(chatId: $chatId, message: $message, author: $author)\n}\n",
-								"variables": "{\n  \"chatId\": \"clyd2q0be0000vr43hjf8rpgz\",\n  \"message\": \"test message f\",\n  \"author\": \"clyd18ddm0000frst91tudu9c\"\n}\n"
+								"variables": "{\n  \"chatId\": \"clyfmises0003t6mqwjyzg5ga\",\n  \"message\": \"test message\",\n  \"author\": \"clyfmexzl0001t6mqn49n6uen\"\n}\n"
 							}
 						},
 						"url": {
@@ -185,6 +407,86 @@
 				},
 				{
 					"name": "getChatByUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Content-Type is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is within an acceptable range\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Data object and its structure validation\", function () {",
+									"  const responseData = pm.response.json();",
+									"  ",
+									"  pm.expect(responseData).to.be.an('object');",
+									"  pm.expect(responseData.data).to.exist.and.to.be.an('object');",
+									"  pm.expect(responseData.data.getChatsByUser).to.exist.and.to.be.an('array');",
+									"  responseData.data.getChatsByUser.forEach(chat => {",
+									"    pm.expect(chat).to.be.an('object');",
+									"    pm.expect(chat.id).to.exist.and.to.be.a('string');",
+									"    pm.expect(chat.users).to.exist.and.to.be.an('array');",
+									"    chat.users.forEach(user => {",
+									"      pm.expect(user).to.be.an('object');",
+									"      pm.expect(user.id).to.exist.and.to.be.a('string');",
+									"      pm.expect(user.name).to.exist.and.to.be.a('string');",
+									"    });",
+									"    pm.expect(chat.messages).to.exist.and.to.be.an('array');",
+									"    chat.messages.forEach(message => {",
+									"      pm.expect(message).to.be.an('object');",
+									"      pm.expect(message.author).to.exist.and.to.be.an('object');",
+									"      pm.expect(message.author.id).to.exist.and.to.be.a('string');",
+									"      pm.expect(message.author.email).to.exist.and.to.be.a('string');",
+									"      pm.expect(message.author.name).to.exist.and.to.be.a('string');",
+									"      pm.expect(message.content).to.exist.and.to.be.a('string');",
+									"    });",
+									"  });",
+									"});",
+									"",
+									"",
+									"pm.test(\"Validate the getChatsByUser array and its elements\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.data.getChatsByUser).to.be.an('array').that.is.not.empty;",
+									"",
+									"    responseData.data.getChatsByUser.forEach(function(chat) {",
+									"        pm.expect(chat).to.have.property('id').that.is.a('string').and.is.not.empty;",
+									"        ",
+									"        pm.expect(chat.users).to.be.an('array').that.is.not.empty;",
+									"        chat.users.forEach(function(user) {",
+									"            pm.expect(user).to.have.property('id').that.is.a('string').and.is.not.empty;",
+									"            pm.expect(user).to.have.property('name').that.is.a('string').and.is.not.empty;",
+									"        });",
+									"",
+									"        pm.expect(chat.messages).to.be.an('array').that.is.not.empty;",
+									"        chat.messages.forEach(function(message) {",
+									"            pm.expect(message).to.have.property('author').that.is.an('object');",
+									"            pm.expect(message.author).to.have.property('id').that.is.a('string').and.is.not.empty;",
+									"            pm.expect(message.author).to.have.property('email').that.is.a('string').and.is.not.empty;",
+									"            pm.expect(message.author).to.have.property('name').that.is.a('string').and.is.not.empty;",
+									"            pm.expect(message).to.have.property('content').that.is.a('string');",
+									"        });",
+									"    });",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -192,7 +494,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "query getChatsByUser($userId: String!) {\n  getChatsByUser(userId: $userId) {\n    id\n    users {\n      id\n      name\n    }\n    messages {\n        author {\n            id\n            email\n            name\n        }\n        content\n    }\n  }\n}\n",
-								"variables": "{\n  \"userId\": \"clyd18ddm0000frst91tudu9c\"\n}\n"
+								"variables": "{\n  \"userId\": \"clyfmexzl0001t6mqn49n6uen\"\n}\n"
 							}
 						},
 						"url": {
@@ -209,6 +511,47 @@
 				},
 				{
 					"name": "getAll",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"Verify the structure of the 'getChats' response data\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.have.property('data');",
+									"    pm.expect(responseData.data).to.have.property('getChats').that.is.an('array');",
+									"    responseData.data.getChats.forEach(function(chat) {",
+									"        pm.expect(chat).to.have.property('id');",
+									"        pm.expect(chat).to.have.property('users').that.is.an('array');",
+									"        chat.users.forEach(function(user) {",
+									"            pm.expect(user).to.have.property('id');",
+									"            pm.expect(user).to.have.property('name');",
+									"        });",
+									"    });",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is within acceptable range\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -238,6 +581,55 @@
 			"item": [
 				{
 					"name": "createMessage",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required fields - id, content, author, chat\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.data.createMessage).to.have.property('id');",
+									"    pm.expect(responseData.data.createMessage).to.have.property('content');",
+									"    pm.expect(responseData.data.createMessage).to.have.property('author');",
+									"    pm.expect(responseData.data.createMessage).to.have.property('chat');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Author's email is in a valid format\", function () {",
+									"  const responseData = pm.response.json();",
+									"  ",
+									"  pm.expect(responseData).to.be.an('object');",
+									"  pm.expect(responseData.data.createMessage.author.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Author's email is not in a valid format\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"Chat contains the required fields - id, users\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.data.createMessage.chat).to.exist;",
+									"    pm.expect(responseData.data.createMessage.chat.id).to.exist;",
+									"    pm.expect(responseData.data.createMessage.chat.users).to.exist;",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -245,7 +637,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation createMessage($content: String!, $author: String!, $chat: String!) {\n    createMessage(content: $content, author: $author, chat: $chat) {\n        id\n        content\n        author {\n            id\n            name\n            email\n        }\n        chat {\n            id\n            users {\n                id\n                name\n                email\n            }\n        }\n    }\n}",
-								"variables": "{\n    \"content\": \"salut\",\n    \"author\": \"clye6ddm10000ollsgl3bmkwaq\",\n    \"chat\": \"clye6dkmo0001ollgxcclru8d\"\n}"
+								"variables": "{\n    \"content\": \"salut\",\n    \"author\": \"clyfmexzl0001t6mqn49n6uen\",\n    \"chat\": \"clyfmises0003t6mqwjyzg5ga\"\n}"
 							}
 						},
 						"url": {
@@ -262,6 +654,67 @@
 				},
 				{
 					"name": "getMessages",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required fields - id, content, author, chat\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.data.getMessages).to.be.an('array');",
+									"",
+									"    responseData.data.getMessages.forEach(function(message) {",
+									"        pm.expect(message).to.have.property('id');",
+									"        pm.expect(message).to.have.property('content');",
+									"        pm.expect(message).to.have.property('author');",
+									"        pm.expect(message).to.have.property('chat');",
+									"    });",
+									"});",
+									"",
+									"",
+									"pm.test(\"Author object has id, name, and email\", function () {",
+									"  const responseData = pm.response.json();",
+									"",
+									"  pm.expect(responseData.data.getMessages).to.be.an('array');",
+									"  responseData.data.getMessages.forEach(function(message) {",
+									"    pm.expect(message.author).to.be.an('object');",
+									"    pm.expect(message.author.id).to.be.a('string').and.to.have.lengthOf.at.least(1);",
+									"    pm.expect(message.author.name).to.be.a('string').and.to.have.lengthOf.at.least(1);",
+									"    pm.expect(message.author.email).to.be.a('string').and.to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/);",
+									"  });",
+									"});",
+									"",
+									"",
+									"pm.test(\"Validate the chat object - id\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.data.getMessages[0].chat.id).to.exist;",
+									"});",
+									"",
+									"pm.test(\"Validate the chat object - users\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.data.getMessages[0].chat.users).to.be.an('array').that.is.not.empty;",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 500ms\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -286,6 +739,75 @@
 				},
 				{
 					"name": "getMessagesByChat",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is within an acceptable range\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"GetMessagesByChat object and its nested properties are valid\", function () {",
+									"  const responseData = pm.response.json();",
+									"  ",
+									"  pm.expect(responseData).to.be.an('object');",
+									"  pm.expect(responseData.data.getMessagesByChat).to.be.an('array');",
+									"  ",
+									"  responseData.data.getMessagesByChat.forEach(function(message) {",
+									"    pm.expect(message).to.be.an('object');",
+									"    pm.expect(message.id).to.be.a('string');",
+									"    pm.expect(message.content).to.be.a('string');",
+									"    ",
+									"    pm.expect(message.author).to.be.an('object');",
+									"    pm.expect(message.author.id).to.be.a('string');",
+									"    pm.expect(message.author.name).to.be.a('string');",
+									"    pm.expect(message.author.email).to.be.a('string');",
+									"    ",
+									"    pm.expect(message.chat).to.be.an('object');",
+									"    pm.expect(message.chat.id).to.be.a('string');",
+									"    ",
+									"    pm.expect(message.chat.users).to.be.an('array');",
+									"    message.chat.users.forEach(function(user) {",
+									"      pm.expect(user.id).to.be.a('string');",
+									"      pm.expect(user.name).to.be.a('string');",
+									"      pm.expect(user.email).to.be.a('string');",
+									"    });",
+									"  });",
+									"});",
+									"",
+									"",
+									"pm.test(\"Ensure that the necessary properties are present in the response\", function () {",
+									"  const responseData = pm.response.json();",
+									"",
+									"  pm.expect(responseData).to.be.an('object');",
+									"  pm.expect(responseData.data.getMessagesByChat).to.be.an('array');",
+									"  ",
+									"  responseData.data.getMessagesByChat.forEach(function(message) {",
+									"    pm.expect(message.id).to.exist;",
+									"    pm.expect(message.content).to.exist;",
+									"    pm.expect(message.author).to.exist;",
+									"    pm.expect(message.chat).to.exist;",
+									"  });",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -293,7 +815,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "query getMessagesByChat($chatId: String!) {\n  getMessagesByChat(chatId: $chatId) {\n    id\n    content\n    author {\n        id\n        name\n        email\n    }\n    chat {\n        id\n        users {\n            id\n            name\n            email\n        }\n    }\n  }\n}",
-								"variables": "{\n    \"chatId\": \"clyd1rn5u0000lghk6otj9jya\"\n}"
+								"variables": "{\n    \"chatId\": \"clyfmises0003t6mqwjyzg5ga\"\n}"
 							}
 						},
 						"url": {
@@ -312,6 +834,57 @@
 		},
 		{
 			"name": "SignIn",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"  pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Content-Type header is application/json\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is less than 300ms\", function () {",
+							"  pm.expect(pm.response.responseTime).to.be.below(300);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Data object has the expected structure\", function () {",
+							"  const responseData = pm.response.json();",
+							"  ",
+							"  pm.expect(responseData.data).to.exist;",
+							"  pm.expect(responseData.data).to.be.an('object');",
+							"  pm.expect(responseData.data.signIn).to.exist;",
+							"  pm.expect(responseData.data.signIn).to.be.an('object');",
+							"  pm.expect(responseData.data.signIn.id).to.exist;",
+							"  pm.expect(responseData.data.signIn.name).to.exist;",
+							"  pm.expect(responseData.data.signIn.email).to.exist;",
+							"  pm.expect(responseData.data.signIn.token).to.exist;",
+							"});",
+							"",
+							"",
+							"pm.test(\"Validate the structure of the 'signIn' object and its properties\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.data.signIn).to.be.an('object');",
+							"    pm.expect(responseData.data.signIn.id).to.be.a('string');",
+							"    pm.expect(responseData.data.signIn.name).to.be.a('string');",
+							"    pm.expect(responseData.data.signIn.email).to.be.a('string');",
+							"    pm.expect(responseData.data.signIn.token).to.be.a('string');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -336,21 +909,65 @@
 		},
 		{
 			"name": "SignUp",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"  pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response time is within acceptable range\", function () {",
+							"  pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Data object should contain message and success properties\", function () {",
+							"  const responseData = pm.response.json();",
+							"  ",
+							"  pm.expect(responseData.data).to.be.an('object');",
+							"  pm.expect(responseData.data.signUp.message).to.exist;",
+							"  pm.expect(responseData.data.signUp.success).to.exist;",
+							"});",
+							"",
+							"",
+							"pm.test(\"Message is a non-empty string\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData.data.signUp.message).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Message should not be empty\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "graphql",
 					"graphql": {
-						"query": "mutation signIn($email: String!, $password: String!) {\n    signIn(email: $email, password: $password) {\n      id\n      name\n      email\n      token\n  }\n}",
-						"variables": "{\n    \"email\": \"user1@mail.com\",\n    \"password\": \"test\"\n}"
+						"query": "mutation signUp($name: String!, $email: String!, $password: String!) {\n    signUp(name: $name, email: $email, password: $password) {\n      message\n      success\n    }\n  }",
+						"variables": "{\n    \"name\": \"user2\",\n    \"email\": \"user2@mail.com\",\n    \"password\": \"test\"\n}"
 					}
 				},
 				"url": {
-					"raw": "{{API}}/graphql",
+					"raw": "127.0.0.1:3000/graphql",
 					"host": [
-						"{{API}}"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
+					"port": "3000",
 					"path": [
 						"graphql"
 					]
