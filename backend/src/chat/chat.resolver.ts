@@ -2,7 +2,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ChatService } from './chat.service';
 import { Chat } from '../models/chat.model';
 import { UserService } from '../user/user.service';
-import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Resolver()
 export class ChatResolver {
@@ -45,7 +45,11 @@ export class ChatResolver {
     const chat = await this.chatService.findById(chatId);
     if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
 
-    if(!(chat.users.find((user)=>user.id == author))) throw new HttpException('Author not found in this chat', HttpStatus.NOT_FOUND);
+    if (!chat.users.find((user) => user.id == author))
+      throw new HttpException(
+        'Author not found in this chat',
+        HttpStatus.NOT_FOUND,
+      );
     const user = await this.userService.findById(author);
     if (!user)
       throw new HttpException('Author not found', HttpStatus.NOT_FOUND);

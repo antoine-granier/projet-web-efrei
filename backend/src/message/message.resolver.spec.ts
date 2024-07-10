@@ -3,15 +3,10 @@ import { MessageResolver } from './message.resolver';
 import { MessageService } from './message.service';
 import { ChatService } from '../chat/chat.service';
 import { UserService } from '../user/user.service';
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { Message } from '../models/message.model';
+import { HttpException } from '@nestjs/common';
 
 describe('MessageResolver', () => {
   let resolver: MessageResolver;
-  let messageService: MessageService;
-  let chatService: ChatService;
-  let userService: UserService;
-
   const mockMessageService = {
     findAll: jest.fn(),
     findByChat: jest.fn(),
@@ -37,12 +32,8 @@ describe('MessageResolver', () => {
     }).compile();
 
     resolver = module.get<MessageResolver>(MessageResolver);
-    messageService = module.get<MessageService>(MessageService);
-    chatService = module.get<ChatService>(ChatService);
-    userService = module.get<UserService>(UserService);
 
     jest.spyOn(console, 'error').mockImplementation(() => {});
-
   });
 
   afterEach(() => {
@@ -55,7 +46,9 @@ describe('MessageResolver', () => {
 
   describe('getMessages', () => {
     it('should return all messages', async () => {
-      const messages = [{ id: '1', content: 'Hello', authorId: '1', chatId: '1' }];
+      const messages = [
+        { id: '1', content: 'Hello', authorId: '1', chatId: '1' },
+      ];
       mockMessageService.findAll.mockResolvedValue(messages);
 
       const result = await resolver.getMessages();
@@ -67,7 +60,9 @@ describe('MessageResolver', () => {
 
   describe('getMessagesByChat', () => {
     it('should return messages for a specific chat', async () => {
-      const messages = [{ id: '1', content: 'Hello', authorId: '1', chatId: '1' }];
+      const messages = [
+        { id: '1', content: 'Hello', authorId: '1', chatId: '1' },
+      ];
       const chat = { id: '1', users: [], messages: [] };
       mockChatService.findById.mockResolvedValue(chat);
       mockMessageService.findByChat.mockResolvedValue(messages);
@@ -82,8 +77,12 @@ describe('MessageResolver', () => {
     it('should throw an error if chat is not found', async () => {
       mockChatService.findById.mockResolvedValue(null);
 
-      await expect(resolver.getMessagesByChat('1')).rejects.toThrow(HttpException);
-      await expect(resolver.getMessagesByChat('1')).rejects.toThrow('Chat not found');
+      await expect(resolver.getMessagesByChat('1')).rejects.toThrow(
+        HttpException,
+      );
+      await expect(resolver.getMessagesByChat('1')).rejects.toThrow(
+        'Chat not found',
+      );
     });
   });
 
@@ -107,8 +106,12 @@ describe('MessageResolver', () => {
     it('should throw an error if chat is not found', async () => {
       mockChatService.findById.mockResolvedValue(null);
 
-      await expect(resolver.createMessage('Hello', '1', '1')).rejects.toThrow(HttpException);
-      await expect(resolver.createMessage('Hello', '1', '1')).rejects.toThrow('Chat not found');
+      await expect(resolver.createMessage('Hello', '1', '1')).rejects.toThrow(
+        HttpException,
+      );
+      await expect(resolver.createMessage('Hello', '1', '1')).rejects.toThrow(
+        'Chat not found',
+      );
     });
 
     it('should throw an error if user is not found', async () => {
@@ -116,8 +119,12 @@ describe('MessageResolver', () => {
       mockChatService.findById.mockResolvedValue(chat);
       mockUserService.findById.mockResolvedValue(null);
 
-      await expect(resolver.createMessage('Hello', '1', '1')).rejects.toThrow(HttpException);
-      await expect(resolver.createMessage('Hello', '1', '1')).rejects.toThrow('Author not found');
+      await expect(resolver.createMessage('Hello', '1', '1')).rejects.toThrow(
+        HttpException,
+      );
+      await expect(resolver.createMessage('Hello', '1', '1')).rejects.toThrow(
+        'Author not found',
+      );
     });
   });
 });

@@ -20,7 +20,7 @@ export class ChatProcessor {
     const { message, userId, chatId } = job.data;
     console.log(`Processing message: ${message}`);
     try {
-      const newMessage = await this.prisma.message.create({
+      await this.prisma.message.create({
         data: { content: message, authorId: userId, chatId },
       });
       this.chatGateway.sendMessageToChat(chatId, message, userId);

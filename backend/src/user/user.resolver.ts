@@ -1,7 +1,7 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from '../models/user.model';
-import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { isValidEmail } from '../utils';
 
 @Resolver()

@@ -447,12 +447,12 @@ export class ChatService {
   async isUserInChat(userId: string, chatId: string): Promise<boolean> {
     const chat = await this.prisma.chat.findUnique({
       where: { id: chatId },
-      include: { users: true }, 
+      include: { users: true },
     });
 
     if (!chat) {
       return false;
     }
-    return chat.users.some(user => user.userId === userId);
+    return chat.users.some((user) => user.userId === userId);
   }
 }

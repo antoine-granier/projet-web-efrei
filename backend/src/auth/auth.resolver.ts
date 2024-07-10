@@ -1,16 +1,18 @@
-import { Args, Mutation, Resolver } from "@nestjs/graphql";
-import { AuthService } from "./auth.service";
-import { isValidEmail } from "../utils";
-import { HttpException, HttpStatus } from "@nestjs/common";
-import { SignInReturn, SignUpReturn } from "../models/auth.model";
-
+import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { AuthService } from './auth.service';
+import { isValidEmail } from '../utils';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { SignInReturn, SignUpReturn } from '../models/auth.model';
 
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
   @Mutation(() => SignInReturn)
-  signIn(@Args("email") email: string, @Args("password") password: string): Promise<SignInReturn> {
+  signIn(
+    @Args('email') email: string,
+    @Args('password') password: string,
+  ): Promise<SignInReturn> {
     if (!isValidEmail(email)) {
       throw new HttpException('Invalid email format', HttpStatus.BAD_REQUEST);
     }
@@ -19,7 +21,11 @@ export class AuthResolver {
   }
 
   @Mutation(() => SignUpReturn)
-  async signUp(@Args("name") name: string, @Args("email") email: string, @Args("password") password: string): Promise<SignUpReturn> {
+  async signUp(
+    @Args('name') name: string,
+    @Args('email') email: string,
+    @Args('password') password: string,
+  ): Promise<SignUpReturn> {
     if (!isValidEmail(email)) {
       throw new HttpException('Invalid email format', HttpStatus.BAD_REQUEST);
     }
@@ -28,7 +34,7 @@ export class AuthResolver {
 
     return {
       success: data.success,
-      message: data.message
-    }
+      message: data.message,
+    };
   }
 }

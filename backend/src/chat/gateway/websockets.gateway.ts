@@ -9,7 +9,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
 import { ChatService } from '../chat.service';
-import { AuthGuard } from '../../auth/auth.guard';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @WebSocketGateway({
   cors: {
@@ -17,18 +17,20 @@ import { AuthGuard } from '../../auth/auth.guard';
   },
   namespace: '/chat',
 })
-// @UseGuards(AuthGuard)
-export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+@UseGuards(AuthGuard)
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer() server: Server;
   private readonly logger = new Logger(ChatGateway.name);
 
-  constructor(private chatService: ChatService) {} 
+  constructor(private chatService: ChatService) {}
 
   afterInit(server: Server) {
-    this.logger.log('WebSocket Gateway Initialized');
+    this.logger.log(`WebSocket Gateway Initialized ${server.path()}`);
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
+  handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
   }
 
@@ -37,15 +39,20 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   @SubscribeMessage('join')
-  async handleJoin(client: Socket, { userId, chatId }: { userId: string, chatId: string }): Promise<void> {
-    if(chatId&&userId){
+  async handleJoin(
+    client: Socket,
+    { userId, chatId }: { userId: string; chatId: string },
+  ): Promise<void> {
+    if (chatId && userId) {
       const isUserInChat = await this.chatService.isUserInChat(userId, chatId);
       if (isUserInChat) {
         client.join(chatId);
         this.logger.log(`Client ${client.id} joined chat ${chatId}`);
       } else {
         client.emit('error', 'You are not a member of this chat');
-        this.logger.warn(`User ${userId} attempted to join chat ${chatId} but is not a member`);
+        this.logger.warn(
+          `User ${userId} attempted to join chat ${chatId} but is not a member`,
+        );
       }
     }
   }

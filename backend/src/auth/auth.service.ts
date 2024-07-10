@@ -1,4 +1,4 @@
-import { Injectable, Dependencies, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -7,7 +7,10 @@ import * as bcrypt from 'bcrypt';
 // @Dependencies(UserService)
 export class AuthService {
   private saltOrRounds: number = 10;
-  constructor(private readonly userService: UserService, private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async signIn(email: string, pass: string) {
     const user = await this.userService.findByEmail(email);
@@ -15,25 +18,28 @@ export class AuthService {
     if (!isMatch) {
       throw new UnauthorizedException();
     }
-    
+
     const payload = { sub: user.id, email: user.email };
     return {
       ...user,
-      token: await this.jwtService.signAsync(payload, {secret: process.env.SECRET}),
+      token: await this.jwtService.signAsync(payload, {
+        secret: process.env.SECRET,
+      }),
     };
   }
 
   async signUp(name: string, email: string, password: string) {
-    const hashPass = await bcrypt .hash(password, this.saltOrRounds)
+    const hashPass = await bcrypt.hash(password, this.saltOrRounds);
     const user = await this.userService.create(name, email, hashPass);
 
-    if(!user) return {
-      success: false,
-      message: "Error during account creation."
-    }
+    if (!user)
+      return {
+        success: false,
+        message: 'Error during account creation.',
+      };
     return {
       success: true,
-      message: "Account created."
-    }
+      message: 'Account created.',
+    };
   }
 }

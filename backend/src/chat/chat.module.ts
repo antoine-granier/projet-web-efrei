@@ -8,7 +8,13 @@ import { UserModule } from '../user/user.module';
 import { ChatGateway } from './gateway/websockets.gateway';
 
 @Module({
-  providers: [ChatService, ChatResolver, PrismaService, ChatProcessor, ChatGateway],
+  providers: [
+    ChatService,
+    ChatResolver,
+    PrismaService,
+    ChatProcessor,
+    ChatGateway,
+  ],
   imports: [
     BullModule.registerQueue({
       name: 'chat',
