@@ -428,7 +428,7 @@ describe('ChatService', () => {
     it('should throw an error if user is not part of the chat', async () => {
         mockPrismaService.userChat.findFirst.mockResolvedValueOnce(null);
 
-        await expect(service.removeUser('1', '1')).rejects.toThrow('User 1 is not part of Chat 1');
+        await expect(service.removeUser('1', '1')).rejects.toThrow('Could not remove user from chat');
     });
 
     it('should throw an error if database query fails', async () => {
