@@ -17,6 +17,7 @@ const documents = {
     "\n  mutation addMessageToChat(\n    $chatId: String!\n    $message: String!\n    $author: String!\n  ) {\n    addMessageToChat(chatId: $chatId, message: $message, author: $author)\n  }\n": types.AddMessageToChatDocument,
     "\n  mutation Login($email: String!, $password: String!) {\n    signIn(email: $email, password: $password) {\n      id\n      name\n      email\n      token\n    }\n  }\n": types.LoginDocument,
     "\n  mutation signUp($name: String!, $email: String!, $password: String!) {\n    signUp(name: $name, email: $email, password: $password) {\n      message\n      success\n    }\n  }\n": types.SignUpDocument,
+    "\n  mutation addUser($userId: String!, $chatId: String!) {\n    addUser(userId: $userId, chatId: $chatId) {\n      id\n      users {\n        id\n        name\n        email\n      }\n    }\n  }\n": types.AddUserDocument,
     "\n  query getChatsByUser($userId: String!) {\n    getChatsByUser(userId: $userId) {\n      id\n      users {\n        id\n        name\n      }\n      messages {\n        author {\n          id\n          email\n          name\n        }\n        content\n      }\n    }\n  }\n": types.GetChatsByUserDocument,
     "\n  mutation createChat($userIds: [String!]!) {\n    createChat(userIds: $userIds) {\n      id\n      users {\n        id\n      }\n    }\n  }\n": types.CreateChatDocument,
     "\n  query getUsers {\n    getUsers {\n      id\n      name\n      email\n    }\n  }\n": types.GetUsersDocument,
@@ -52,6 +53,10 @@ export function gql(source: "\n  mutation Login($email: String!, $password: Stri
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation signUp($name: String!, $email: String!, $password: String!) {\n    signUp(name: $name, email: $email, password: $password) {\n      message\n      success\n    }\n  }\n"): (typeof documents)["\n  mutation signUp($name: String!, $email: String!, $password: String!) {\n    signUp(name: $name, email: $email, password: $password) {\n      message\n      success\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation addUser($userId: String!, $chatId: String!) {\n    addUser(userId: $userId, chatId: $chatId) {\n      id\n      users {\n        id\n        name\n        email\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation addUser($userId: String!, $chatId: String!) {\n    addUser(userId: $userId, chatId: $chatId) {\n      id\n      users {\n        id\n        name\n        email\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

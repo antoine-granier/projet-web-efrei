@@ -34,7 +34,7 @@ const LayoutPage: React.FC = () => {
           <ChatList />
         </div>
 
-        <div className="h-full overflow-auto w-2/3 px-2 py-4">
+        <div className="h-full overflow-auto w-2/3 px-2 py-1">
           <Outlet />
         </div>
       </div>

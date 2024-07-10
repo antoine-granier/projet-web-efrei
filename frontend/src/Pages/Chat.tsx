@@ -7,10 +7,11 @@ import {
 } from "../__generated__/graphql";
 import { useUserStore } from "../store/userStore";
 import Message from "../components/Message";
-import { IoMdSend } from "react-icons/io";
+import { IoIosPeople, IoIosPersonAdd, IoMdSend } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createSocket } from "../socket";
+import AddUserModal from "../components/AddUserModal";
 
 const GET_CHAT_BY_ID = gql`
   query getChatById($chatId: String!) {
@@ -60,6 +61,8 @@ const Chat = () => {
   const user = useUserStore((state) => state.user);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [open, setOpen] = useState(false);
+
   const { data, loading, error } = useQuery(GetChatByIdDocument, {
     variables: { chatId: id || "" },
   });
@@ -113,7 +116,23 @@ const Chat = () => {
 
   return (
     <div>
-      <div className="h-[calc(100vh-2rem-50px)] overflow-auto flex flex-col items-center">
+      <div className="flex items-center justify-between border-b p-2">
+        <div className="overflow-hidden flex items-center gap-1">
+          <IoIosPeople className="w-6 h-6" />
+          <p className="truncate">
+            {data?.getChatById.users.map((user, index) => {
+              if (index === data.getChatById.users.length - 1) {
+                return user.name;
+              }
+              return user.name + ", ";
+            })}
+          </p>
+        </div>
+        <Button size="xs" onClick={() => setOpen(!open)}>
+          <IoIosPersonAdd className="w-6 h-6" />
+        </Button>
+      </div>
+      <div className="h-[calc(100vh-2rem-85px)] overflow-auto flex flex-col items-center">
         {loading ? (
           <Spinner />
         ) : error ? (
@@ -133,7 +152,7 @@ const Chat = () => {
           })
         )}
       </div>
-      <div className="w-full flex items-center gap-2 p-1">
+      <div className="w-full flex items-center gap-2 p-1 border-t">
         <TextInput
           className="w-full"
           placeholder="Write something..."
@@ -158,6 +177,12 @@ const Chat = () => {
           <IoMdSend />
         </Button>
       </div>
+      <AddUserModal
+        open={open}
+        setOpen={setOpen}
+        chatId={data?.getChatById?.id || ""}
+        chatUsers={data?.getChatById.users || []}
+      />
     </div>
   );
 };

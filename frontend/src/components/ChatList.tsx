@@ -3,7 +3,8 @@ import { useUserStore } from "../store/userStore";
 import { Spinner } from "flowbite-react";
 import { GetChatsByUserDocument } from "../__generated__/graphql";
 import { IoIosChatbubbles } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { twMerge } from "tailwind-merge";
 
 const GET_CHAT_BY_USER = gql`
   query getChatsByUser($userId: String!) {
@@ -28,6 +29,7 @@ const GET_CHAT_BY_USER = gql`
 const ChatList = () => {
   const user = useUserStore((state) => state.user);
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const { data, loading, error } = useQuery(GetChatsByUserDocument, {
     variables: { userId: user?.id || "" },
@@ -46,7 +48,12 @@ const ChatList = () => {
               return (
                 <div
                   key={chat.id}
-                  className="flex items-center justify-between p-2 gap-2 border-b hover:bg-slate-200 cursor-pointer"
+                  className={twMerge(
+                    "flex items-center justify-between p-2 gap-2 border-b cursor-pointer",
+                    chat.id === id
+                      ? "bg-[#0d7490] text-white"
+                      : "bg-white hover:bg-slate-200"
+                  )}
                   onClick={() => navigate(chat.id)}
                 >
                   <IoIosChatbubbles className="h-8 w-8" />
@@ -60,11 +67,23 @@ const ChatList = () => {
                       })}
                     </p>
                     {chat.messages.length > 0 ? (
-                      <p className="text-sm text-gray-500">
+                      <p
+                        className={twMerge(
+                          "text-sm",
+                          chat.id === id ? "text-slate-50" : "text-gray-500"
+                        )}
+                      >
                         {chat.messages[chat.messages.length - 1].content}
                       </p>
                     ) : (
-                      <p className="text-sm text-gray-500">No message.</p>
+                      <p
+                        className={twMerge(
+                          "text-sm",
+                          chat.id === id ? "text-slate-50" : "text-gray-500"
+                        )}
+                      >
+                        No message.
+                      </p>
                     )}
                   </div>
                 </div>
