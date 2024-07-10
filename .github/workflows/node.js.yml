@@ -7,15 +7,105 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  test-backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
-    strategy:
-      matrix:
-        node-version: [21.x]
+      redis:
+        image: redis:latest
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
 
     steps:
       - uses: actions/checkout@v4
+      - name: Use Node.js 21.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.x
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      - name: Install Dependencies Backend
+        run: |
+          cd backend
+          npm ci
+
+      - name: Run Migrate Database
+        run: |
+          cd backend
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgres://testuser:testpassword@localhost:5432/testdb
+
+      - name: Start Backend
+        run: |
+          cd backend
+          npm start &
+        env:
+          DATABASE_URL: postgres://testuser:testpassword@localhost:5432/testdb
+          REDIS_URL: redis://localhost:6379
+
+      - name: Wait for Backend to be Ready
+        run: |
+          sleep 5
+
+      - name: Test Backend
+        run: |
+          cd backend
+          npm run test
+
+      - name: Test Backend with Newman
+        run: |
+          cd postman
+          npx newman run projet-web-efrei.postman_collection.json -e ENV.postman_environment.json
+
+  build-backend:
+    runs-on: ubuntu-latest
+    needs: test-backend
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 21.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 21.x
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      - name: Install Dependencies Backend
+        run: |
+          cd backend
+          npm ci
+
+      - name: Build Backend
+        run: |
+          cd backend
+          npm run build --if-present
+
+      - name: Run Migrate Database (Production)
+        run: |
+          cd backend
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -33,49 +123,22 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.DOCKER_USERNAME }}/back-chat-app:latest
+  
+      - name: Deploy Backend on Render
+        run: |
+          curl -n ${{ secrets.DEPLOY_URL }}
 
-      - name: Use Node.js ${{ matrix.node-version }}
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 21.x
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 21.x
           cache: "npm"
           cache-dependency-path: "**/package-lock.json"
-
-      - name: Install Dependencies Backend
-        run: |
-          cd backend
-          npm ci
-
-      - name: Build Backend
-        run: |
-          cd backend
-          npm run build --if-present
-
-      - name: Test Backend
-        run: |
-          cd backend
-          npm run test
-
-      - name: Run Migrate Database
-        run: |
-          cd backend
-          npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: Run API Tests
-        id: run-newman
-        uses: anthonyvscode/newman-action@v1
-        with:
-          collection: postman/projet-web-efrei.postman_collection.json
-          reporters: cli
-
-      - name: Output summary to console
-        run: echo ${{ steps.run-newman.outputs.summary }}
-
-      - name: Deploy on Render
-        run: |
-          curl -n ${{ secrets.DEPLOY_URL }} \
 
       - name: Install Dependencies Frontend
         run: |
@@ -87,6 +150,6 @@ jobs:
           cd frontend
           npm run build --if-present
 
-      - name: Deploy on Render
+      - name: Deploy Frontend on Render
         run: |
-          curl -n ${{ secrets.DEPLOY_FRONT_URL }} \
+          curl -n ${{ secrets.DEPLOY_FRONT_URL }}
