@@ -132,6 +132,8 @@ const Chat = () => {
   useEffect(() => {
     if (data && data.getChatById.messages.length > 0) {
       setMessages(data.getChatById.messages);
+    } else {
+      setMessages([]);
     }
   }, [data]);
 
@@ -140,7 +142,7 @@ const Chat = () => {
   };
 
   return (
-    <div>
+    <div key={id}>
       <div className="flex items-center justify-between border-b p-2">
         <div className="overflow-hidden flex items-center gap-1">
           <IoIosPeople className="w-6 h-6" />
