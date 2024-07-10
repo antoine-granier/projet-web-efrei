@@ -3,6 +3,10 @@ import { ChatResolver } from './chat.resolver';
 import { ChatService } from './chat.service';
 import { UserService } from '../user/user.service';
 import { HttpException } from '@nestjs/common';
+import { ChatMemberGuard } from './chat-member-guards';
+import { JwtService } from '@nestjs/jwt';
+import { ExecutionContext } from '@nestjs/common';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
 describe('ChatResolver', () => {
   let resolver: ChatResolver;
@@ -14,10 +18,23 @@ describe('ChatResolver', () => {
     findById: jest.fn(),
     addMessageToChatQueue: jest.fn(),
     addUser: jest.fn(),
+    removeUser: jest.fn(),
   };
 
   const mockUserService = {
     findById: jest.fn(),
+  };
+
+  const mockJwtService = {
+    verify: jest.fn(),
+  };
+
+  const mockChatMemberGuard = {
+    canActivate: jest.fn((context: ExecutionContext) => {
+      const ctx = GqlExecutionContext.create(context);
+      const args = ctx.getArgs();
+      return args.chatId === '1'; // Allow access if chatId is '1' for testing
+    }),
   };
 
   beforeEach(async () => {
@@ -26,8 +43,12 @@ describe('ChatResolver', () => {
         ChatResolver,
         { provide: ChatService, useValue: mockChatService },
         { provide: UserService, useValue: mockUserService },
+        { provide: JwtService, useValue: mockJwtService },
       ],
-    }).compile();
+    })
+      .overrideGuard(ChatMemberGuard)
+      .useValue(mockChatMemberGuard)
+      .compile();
 
     resolver = module.get<ChatResolver>(ChatResolver);
 
@@ -77,7 +98,7 @@ describe('ChatResolver', () => {
   describe('getChatById', () => {
     it('should return chat for a specific id', async () => {
       const chat = { id: '1', users: [], messages: [] };
-      const id = '1'
+      const id = '1';
       mockChatService.findById.mockResolvedValue(chat);
 
       const result = await resolver.getChatById(id);
@@ -194,6 +215,43 @@ describe('ChatResolver', () => {
 
       await expect(resolver.addUser('1', '1')).rejects.toThrow(HttpException);
       await expect(resolver.addUser('1', '1')).rejects.toThrow(
+        'User not found',
+      );
+    });
+  });
+
+  describe('removeUser', () => {
+    it('should remove a user from the chat', async () => {
+      const chat = { id: '1', users: [], messages: [] };
+      const user = { id: '1', name: 'User', email: 'user@example.com' };
+      mockChatService.findById.mockResolvedValue(chat);
+      mockUserService.findById.mockResolvedValue(user);
+      mockChatService.removeUser.mockResolvedValue(chat);
+
+      const result = await resolver.removeUser('1', '1');
+
+      expect(result).toEqual(chat);
+      expect(mockChatService.findById).toHaveBeenCalledWith('1');
+      expect(mockUserService.findById).toHaveBeenCalledWith('1');
+      expect(mockChatService.removeUser).toHaveBeenCalledWith('1', '1');
+    });
+
+    it('should throw an error if chat is not found', async () => {
+      mockChatService.findById.mockResolvedValue(null);
+
+      await expect(resolver.removeUser('1', '1')).rejects.toThrow(HttpException);
+      await expect(resolver.removeUser('1', '1')).rejects.toThrow(
+        'Chat not found',
+      );
+    });
+
+    it('should throw an error if user is not found', async () => {
+      const chat = { id: '1', users: [], messages: [] };
+      mockChatService.findById.mockResolvedValue(chat);
+      mockUserService.findById.mockResolvedValue(null);
+
+      await expect(resolver.removeUser('1', '1')).rejects.toThrow(HttpException);
+      await expect(resolver.removeUser('1', '1')).rejects.toThrow(
         'User not found',
       );
     });

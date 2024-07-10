@@ -1,189 +1,472 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ChatResolver } from './chat.resolver';
 import { ChatService } from './chat.service';
-import { UserService } from '../user/user.service';
-import { HttpException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { Queue } from 'bull';
+import { Store } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { User } from 'src/models/user.model';
+import { Chat } from 'src/models/chat.model';
 
-describe('ChatResolver', () => {
-  let resolver: ChatResolver;
+describe('ChatService', () => {
+  let service: ChatService;
+  let prisma: PrismaService;
+  let cacheManager: Store;
+  let queue: Queue;
 
-  const mockChatService = {
-    findAll: jest.fn(),
-    findByUser: jest.fn(),
-    create: jest.fn(),
-    findById: jest.fn(),
-    addMessageToChatQueue: jest.fn(),
-    addUser: jest.fn(),
+  const mockPrismaService = {
+    chat: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+    userChat: {
+      findFirst: jest.fn(),
+      delete: jest.fn(),
+    },
   };
 
-  const mockUserService = {
-    findById: jest.fn(),
+  const mockCacheManager = {
+    get: jest.fn(),
+    set: jest.fn(),
+  };
+
+  const mockQueue = {
+    add: jest.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ChatResolver,
-        { provide: ChatService, useValue: mockChatService },
-        { provide: UserService, useValue: mockUserService },
+        ChatService,
+        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: CACHE_MANAGER, useValue: mockCacheManager },
+        { provide: 'BullQueue_chat', useValue: mockQueue },
       ],
     }).compile();
 
-    resolver = module.get<ChatResolver>(ChatResolver);
+    service = module.get<ChatService>(ChatService);
+    prisma = module.get<PrismaService>(PrismaService);
+    cacheManager = module.get<Store>(CACHE_MANAGER);
+    queue = module.get<Queue>('BullQueue_chat');
 
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(resolver).toBeDefined();
-  });
+  // describe('addMessageToChatQueue', () => {
+  //   it('should add a message to the chat queue', async () => {
+  //     const user: User = { id: '1', name: 'User', email: 'user@example.com' };
+  //     await service.addMessageToChatQueue('1', 'Hello, world!', user);
 
-  describe('getChats', () => {
-    it('should return all chats', async () => {
-      const chats = [{ id: '1', users: [], messages: [] }];
-      mockChatService.findAll.mockResolvedValue(chats);
+  //     expect(queue.add).toHaveBeenCalledWith('newMessage', {
+  //       chatId: '1',
+  //       message: 'Hello, world!',
+  //       user,
+  //     });
+  //   });
 
-      const result = await resolver.getChats();
+  //   it('should log an error if adding to the queue fails', async () => {
+  //     const error = new Error('Queue error');
+  //     jest.spyOn(queue, 'add').mockRejectedValueOnce(error);
+  //     const user: User = { id: '1', name: 'User', email: 'user@example.com' };
+  
+  //     await service.addMessageToChatQueue('1', 'Hello, world!', user);
+  
+  //     expect(queue.add).toHaveBeenCalledWith('newMessage', {
+  //       chatId: '1',
+  //       message: 'Hello, world!',
+  //       user,
+  //     });
+  //     expect(console.error).toHaveBeenCalledWith(
+  //       `Failed to add message to chat queue: ${error.message}`,
+  //       error.stack,
+  //     );
+  //   });
+  // });
 
-      expect(result).toEqual(chats);
-      expect(mockChatService.findAll).toHaveBeenCalled();
+  describe('findAll', () => {
+    it('should return all chats from cache if available', async () => {
+      const cachedChats: Chat[] = [{ id: '1', users: [], messages: [] }];
+      mockCacheManager.get.mockResolvedValueOnce(cachedChats);
+
+      const result = await service.findAll();
+
+      expect(result).toEqual(cachedChats);
+      expect(prisma.chat.findMany).not.toHaveBeenCalled();
+    });
+
+    it('should fetch all chats from the database if not cached', async () => {
+      const chatsData = [{ id: '1', users: [], messages: [] }];
+      mockCacheManager.get.mockResolvedValueOnce(null);
+      mockPrismaService.chat.findMany.mockResolvedValueOnce(chatsData);
+
+      const result = await service.findAll();
+
+      expect(result).toEqual(chatsData);
+      expect(prisma.chat.findMany).toHaveBeenCalled();
+      expect(mockCacheManager.set).toHaveBeenCalledWith('chats', chatsData);
+    });
+
+    it('should throw an error if database query fails', async () => {
+      mockCacheManager.get.mockResolvedValueOnce(null);
+      mockPrismaService.chat.findMany.mockRejectedValueOnce(new Error('DB error'));
+
+      await expect(service.findAll()).rejects.toThrow('Could not fetch all chats');
     });
   });
 
-  describe('getChatsByUser', () => {
-    it('should return chats for a specific user', async () => {
-      const chats = [{ id: '1', users: [], messages: [] }];
-      const user = { id: '1', name: 'User', email: 'user@example.com' };
-      mockUserService.findById.mockResolvedValue(user);
-      mockChatService.findByUser.mockResolvedValue(chats);
+  describe('findById', () => {
+    it('should return a chat from cache if available', async () => {
+      const cachedChat: Chat = { id: '1', users: [], messages: [] };
+      mockCacheManager.get.mockResolvedValueOnce(cachedChat);
 
-      const result = await resolver.getChatsByUser('1');
+      const result = await service.findById('1');
 
-      expect(result).toEqual(chats);
-      expect(mockUserService.findById).toHaveBeenCalledWith('1');
-      expect(mockChatService.findByUser).toHaveBeenCalledWith('1');
+      expect(result).toEqual(cachedChat);
+      expect(prisma.chat.findUnique).not.toHaveBeenCalled();
     });
 
-    it('should throw an error if user is not found', async () => {
-      mockUserService.findById.mockResolvedValue(null);
+    it('should fetch a chat from the database if not cached', async () => {
+      const chatData = { id: '1', users: [], messages: [] };
+      mockCacheManager.get.mockResolvedValueOnce(null);
+      mockPrismaService.chat.findUnique.mockResolvedValueOnce(chatData);
 
-      await expect(resolver.getChatsByUser('1')).rejects.toThrow(HttpException);
-      await expect(resolver.getChatsByUser('1')).rejects.toThrow(
-        'User not found',
-      );
-    });
-  });
+      const result = await service.findById('1');
 
-  describe('createChat', () => {
-    it('should create a new chat', async () => {
-      const chat = { id: '1', users: [], messages: [] };
-      const user = { id: '1', name: 'User', email: 'user@example.com' };
-      mockUserService.findById.mockResolvedValue(user);
-      mockChatService.create.mockResolvedValue(chat);
-
-      const result = await resolver.createChat(['1']);
-
-      expect(result).toEqual(chat);
-      expect(mockUserService.findById).toHaveBeenCalledWith('1');
-      expect(mockChatService.create).toHaveBeenCalledWith(['1']);
+      expect(result).toEqual(chatData);
+      expect(prisma.chat.findUnique).toHaveBeenCalledWith({
+        where: { id: '1' },
+        include: { users: { include: { user: true } }, messages: { include: { author: true } } },
+      });
+      expect(mockCacheManager.set).toHaveBeenCalledWith('chats-1', chatData);
     });
 
-    it('should throw an error if any user is not found', async () => {
-      mockUserService.findById.mockResolvedValue(null);
+    it('should return null if chat is not found', async () => {
+      mockCacheManager.get.mockResolvedValueOnce(null);
+      mockPrismaService.chat.findUnique.mockResolvedValueOnce(null);
 
-      await expect(resolver.createChat(['1'])).rejects.toThrow(HttpException);
-      await expect(resolver.createChat(['1'])).rejects.toThrow(
-        'User not found',
-      );
+      const result = await service.findById('1');
+
+      expect(result).toBeNull();
+    });
+
+    it('should throw an error if database query fails', async () => {
+      mockCacheManager.get.mockResolvedValueOnce(null);
+      mockPrismaService.chat.findUnique.mockRejectedValueOnce(new Error('DB error'));
+  
+      await expect(service.findById('1')).rejects.toThrow('Could not fetch chat for id');
     });
   });
 
-  describe('addMessageToChat', () => {
-    it('should add a message to the chat', async () => {
-      const chat = {
-        id: '1',
-        users: [{ id: '1', name: 'User' }],
-        messages: [],
+  describe('findByUser', () => {
+    it('should return chats for a user from cache if available', async () => {
+      const cachedChats: Chat[] = [{ id: '1', users: [], messages: [] }];
+      mockCacheManager.get.mockResolvedValueOnce(cachedChats);
+
+      const result = await service.findByUser('1');
+
+      expect(result).toEqual(cachedChats);
+      expect(prisma.chat.findMany).not.toHaveBeenCalled();
+    });
+
+    it('should fetch chats for a user from the database if not cached', async () => {
+      const chatsData = [{ id: '1', users: [], messages: [] }];
+      mockCacheManager.get.mockResolvedValueOnce(null);
+      mockPrismaService.chat.findMany.mockResolvedValueOnce(chatsData);
+
+      const result = await service.findByUser('1');
+
+      expect(result).toEqual(chatsData);
+      expect(prisma.chat.findMany).toHaveBeenCalledWith({
+        where: { users: { some: { userId: '1' } } },
+        include: { users: { include: { user: true } }, messages: { include: { author: true } } },
+      });
+      expect(mockCacheManager.set).toHaveBeenCalledWith('chats-user-1', chatsData);
+    });
+
+    it('should throw an error if database query fails', async () => {
+      mockCacheManager.get.mockResolvedValueOnce(null);
+      mockPrismaService.chat.findMany.mockRejectedValueOnce(new Error('DB error'));
+
+      await expect(service.findByUser('1')).rejects.toThrow('Could not fetch chats for user');
+    });
+  });
+
+  describe('create', () => {
+    it('should create a chat and cache it', async () => {
+      const userIds = ['user1', 'user2'];
+      const mockChatData = {
+        id: 'chat1',
+        users: [
+          { user: { id: 'user1', name: 'User One', email: 'user1@example.com' } },
+          { user: { id: 'user2', name: 'User Two', email: 'user2@example.com' } },
+        ],
+        messages: [
+          {
+            id: 'message1',
+            content: 'Hello',
+            authorId: 'user1',
+            chatId: 'chat1',
+            author: { id: 'user1', name: 'User One', email: 'user1@example.com' },
+          },
+        ],
       };
-      const user = { id: '1', name: 'User', email: 'user@example.com' };
-      mockChatService.findById.mockResolvedValue(chat);
-      mockUserService.findById.mockResolvedValue(user);
+      const mockChatsData = [mockChatData];
 
-      const result = await resolver.addMessageToChat('1', 'message', '1');
+      mockPrismaService.chat.create.mockResolvedValue(mockChatData);
+      mockPrismaService.chat.findMany.mockResolvedValue(mockChatsData);
+      mockCacheManager.set.mockResolvedValue(true);
 
-      expect(result).toBe(true);
-      expect(mockChatService.findById).toHaveBeenCalledWith('1');
-      expect(mockUserService.findById).toHaveBeenCalledWith('1');
-      expect(mockChatService.addMessageToChatQueue).toHaveBeenCalledWith(
-        '1',
-        'message',
-        user,
-      );
+      const result = await service.create(userIds);
+
+      expect(prisma.chat.create).toHaveBeenCalledWith({
+        data: {
+          users: {
+            create: userIds.map((id) => ({
+              user: { connect: { id } },
+            })),
+          },
+        },
+        include: {
+          users: {
+            include: {
+              user: true,
+            },
+          },
+          messages: {
+            include: {
+              author: true,
+            },
+          },
+        },
+      });
+
+      expect(cacheManager.set).toHaveBeenCalledWith(`chats-${mockChatData.id}`, {
+        id: mockChatData.id,
+        users: mockChatData.users.map((userChat) => ({
+          id: userChat.user.id,
+          name: userChat.user.name,
+          email: userChat.user.email,
+        })),
+        messages: mockChatData.messages.map((message) => ({
+          id: message.id,
+          content: message.content,
+          authorId: message.authorId,
+          chatId: message.chatId,
+          author: {
+            id: message.author.id,
+            name: message.author.name,
+            email: message.author.email,
+          },
+          chat: {
+            id: mockChatData.id,
+            users: mockChatData.users.map((userChat) => ({
+              id: userChat.user.id,
+              name: userChat.user.name,
+              email: userChat.user.email,
+            })),
+            messages: [],
+          },
+        })),
+      });
+
+      expect(cacheManager.set).toHaveBeenCalledWith('chats', mockChatsData.map((chat) => ({
+        id: chat.id,
+        users: chat.users.map((userChat) => ({
+          id: userChat.user.id,
+          name: userChat.user.name,
+          email: userChat.user.email,
+        })),
+        messages: chat.messages.map((message) => ({
+          id: message.id,
+          content: message.content,
+          authorId: message.authorId,
+          chatId: message.chatId,
+          author: {
+            id: message.author.id,
+            name: message.author.name,
+            email: message.author.email,
+          },
+          chat: {
+            id: chat.id,
+            users: chat.users.map((userChat) => ({
+              id: userChat.user.id,
+              name: userChat.user.name,
+              email: userChat.user.email,
+            })),
+            messages: [],
+          },
+        })),
+      })));
+
+      expect(result).toEqual({
+        id: mockChatData.id,
+        users: mockChatData.users.map((userChat) => ({
+          id: userChat.user.id,
+          name: userChat.user.name,
+          email: userChat.user.email,
+        })),
+        messages: mockChatData.messages.map((message) => ({
+          id: message.id,
+          content: message.content,
+          authorId: message.authorId,
+          chatId: message.chatId,
+          author: {
+            id: message.author.id,
+            name: message.author.name,
+            email: message.author.email,
+          },
+          chat: {
+            id: mockChatData.id,
+            users: mockChatData.users.map((userChat) => ({
+              id: userChat.user.id,
+              name: userChat.user.name,
+              email: userChat.user.email,
+            })),
+            messages: [],
+          },
+        })),
+      });
     });
 
-    it('should throw an error if chat is not found', async () => {
-      mockChatService.findById.mockResolvedValue(null);
+    it('should throw an error if chat creation fails', async () => {
+      const userIds = ['user1', 'user2'];
+      mockPrismaService.chat.create.mockRejectedValue(new Error('Creation failed'));
 
-      await expect(
-        resolver.addMessageToChat('1', 'message', '1'),
-      ).rejects.toThrow(HttpException);
-      await expect(
-        resolver.addMessageToChat('1', 'message', '1'),
-      ).rejects.toThrow('Chat not found');
-    });
+      await expect(service.create(userIds)).rejects.toThrow('Could not create chat');
 
-    it('should throw an error if user is not found', async () => {
-      const chat = { id: '1', users: [], messages: [] };
-      mockChatService.findById.mockResolvedValue(chat);
-      mockUserService.findById.mockResolvedValue(null);
+      expect(prisma.chat.create).toHaveBeenCalledWith({
+        data: {
+          users: {
+            create: userIds.map((id) => ({
+              user: { connect: { id } },
+            })),
+          },
+        },
+        include: {
+          users: {
+            include: {
+              user: true,
+            },
+          },
+          messages: {
+            include: {
+              author: true,
+            },
+          },
+        },
+      });
 
-      await expect(
-        resolver.addMessageToChat('1', 'message', '1'),
-      ).rejects.toThrow(HttpException);
-      await expect(
-        resolver.addMessageToChat('1', 'message', '1'),
-      ).rejects.toThrow('Author not found');
+      expect(cacheManager.set).not.toHaveBeenCalled();
     });
   });
 
   describe('addUser', () => {
-    it('should add a user to the chat', async () => {
-      const chat = { id: '1', users: [], messages: [] };
-      const user = { id: '1', name: 'User', email: 'user@example.com' };
-      mockChatService.findById.mockResolvedValue(chat);
-      mockUserService.findById.mockResolvedValue(user);
-      mockChatService.addUser.mockResolvedValue(chat);
+    it('should add a user to a chat', async () => {
+      const chatData = { id: '1', users: [], messages: [] };
+      mockPrismaService.chat.update.mockResolvedValueOnce(chatData);
 
-      const result = await resolver.addUser('1', '1');
+      const result = await service.addUser('1', '1');
 
-      expect(result).toEqual(chat);
-      expect(mockChatService.findById).toHaveBeenCalledWith('1');
-      expect(mockUserService.findById).toHaveBeenCalledWith('1');
-      expect(mockChatService.addUser).toHaveBeenCalledWith('1', '1');
+      expect(result).toEqual(chatData);
+      expect(prisma.chat.update).toHaveBeenCalledWith({
+        where: { id: '1' },
+        data: { users: { create: { userId: '1' } } },
+        include: { users: { include: { user: true } }, messages: { include: { author: true } } },
+      });
+      expect(mockCacheManager.set).toHaveBeenCalledWith('chats-1', chatData);
     });
 
-    it('should throw an error if chat is not found', async () => {
-      mockChatService.findById.mockResolvedValue(null);
+    it('should throw an error if database query fails', async () => {
+      mockPrismaService.chat.update.mockRejectedValueOnce(new Error('DB error'));
+  
+      await expect(service.addUser('1', '1')).rejects.toThrow('Could not add user to chat');
+    });
+  });
 
-      await expect(resolver.addUser('1', '1')).rejects.toThrow(HttpException);
-      await expect(resolver.addUser('1', '1')).rejects.toThrow(
-        'Chat not found',
-      );
+  describe('removeUser', () => {
+    it('should remove a user from a chat', async () => {
+        const userChatEntry = { userId: '1', chatId: '1' };
+        const chatData = {
+            id: '1',
+            users: [{
+                id: '1',
+                name: 'User',
+                email: 'user@example.com',
+            }],
+            messages: [],
+        };
+
+        mockPrismaService.userChat.findFirst.mockResolvedValueOnce(userChatEntry);
+        mockPrismaService.userChat.delete.mockResolvedValueOnce(undefined);
+        mockPrismaService.chat.findUnique.mockResolvedValueOnce({
+            ...chatData,
+            users: chatData.users.map(user => ({ user })),
+        });
+
+        const result = await service.removeUser('1', '1');
+
+        expect(result).toEqual(chatData);
+        expect(prisma.userChat.findFirst).toHaveBeenCalledWith({
+            where: { userId: '1', chatId: '1' },
+        });
+        expect(prisma.userChat.delete).toHaveBeenCalledWith({
+            where: { userId_chatId: { userId: '1', chatId: '1' } },
+        });
+        expect(prisma.chat.findUnique).toHaveBeenCalledWith({
+            where: { id: '1' },
+            include: { users: { include: { user: true } }, messages: { include: { author: true } } },
+        });
+        expect(mockCacheManager.set).toHaveBeenCalledWith('chats-1', chatData);
     });
 
-    it('should throw an error if user is not found', async () => {
-      const chat = { id: '1', users: [], messages: [] };
-      mockChatService.findById.mockResolvedValue(chat);
-      mockUserService.findById.mockResolvedValue(null);
+    it('should throw an error if user is not part of the chat', async () => {
+        mockPrismaService.userChat.findFirst.mockResolvedValueOnce(null);
 
-      await expect(resolver.addUser('1', '1')).rejects.toThrow(HttpException);
-      await expect(resolver.addUser('1', '1')).rejects.toThrow(
-        'User not found',
-      );
+        await expect(service.removeUser('1', '1')).rejects.toThrow('User 1 is not part of Chat 1');
+    });
+
+    it('should throw an error if database query fails', async () => {
+        mockPrismaService.userChat.findFirst.mockRejectedValueOnce(new Error('Could not remove user from chat'));
+
+        await expect(service.removeUser('1', '1')).rejects.toThrow('Could not remove user from chat');
+    });
+  });
+
+  describe('isUserInChat', () => {
+    it('should return true if user is in the chat', async () => {
+      const chatData = { id: '1', users: [{ userId: '1' }] };
+      mockPrismaService.chat.findUnique.mockResolvedValueOnce(chatData);
+
+      const result = await service.isUserInChat('1', '1');
+
+      expect(result).toBe(true);
+      expect(prisma.chat.findUnique).toHaveBeenCalledWith({
+        where: { id: '1' },
+        include: { users: true },
+      });
+    });
+
+    it('should return false if user is not in the chat', async () => {
+      const chatData = { id: '1', users: [] };
+      mockPrismaService.chat.findUnique.mockResolvedValueOnce(chatData);
+
+      const result = await service.isUserInChat('1', '1');
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false if chat is not found', async () => {
+      mockPrismaService.chat.findUnique.mockResolvedValueOnce(null);
+
+      const result = await service.isUserInChat('1', '1');
+
+      expect(result).toBe(false);
     });
   });
 });
