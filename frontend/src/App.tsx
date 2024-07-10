@@ -11,7 +11,6 @@ import {
   ApolloProvider,
   HttpLink,
   InMemoryCache,
-  useQuery,
 } from "@apollo/client";
 import { useEffect, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
