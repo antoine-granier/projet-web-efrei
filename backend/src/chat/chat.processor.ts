@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Job } from 'bull';
 import { ChatGateway } from 'src/chat/gateway/websockets.gateway';
+import { User } from 'src/models/user.model';
 
 @Processor('chat')
 export class ChatProcessor {
@@ -15,15 +16,15 @@ export class ChatProcessor {
 
   @Process('newMessage')
   async handleNewMessage(
-    job: Job<{ message: string; userId: string; chatId: string }>,
+    job: Job<{ message: string; user: User; chatId: string }>,
   ) {
-    const { message, userId, chatId } = job.data;
+    const { message, user, chatId } = job.data;
     console.log(`Processing message: ${message}`);
     try {
       await this.prisma.message.create({
-        data: { content: message, authorId: userId, chatId },
+        data: { content: message, authorId: user.id, chatId },
       });
-      this.chatGateway.sendMessageToChat(chatId, message, userId);
+      this.chatGateway.sendMessageToChat(chatId, message, user);
     } catch (error) {
       this.logger.error(
         `Failed to create message : ${error.message}`,

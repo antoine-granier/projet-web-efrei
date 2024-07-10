@@ -265,7 +265,9 @@ export class MessageService {
         transformedMessages,
       );
 
-      this.chatService.addMessageToChatQueue(chatId, content, authorId);
+      const author = await this.prisma.user.findUnique({ where: { id: authorId } });
+
+      this.chatService.addMessageToChatQueue(chatId, content, author);
       return transformedMessage;
     } catch (error) {
       console.error('Error creating message:', error);

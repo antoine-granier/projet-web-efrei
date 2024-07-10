@@ -10,6 +10,7 @@ import { Server, Socket } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
 import { ChatService } from '../chat.service';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { User } from 'src/models/user.model';
 
 @WebSocketGateway({
   cors: {
@@ -57,7 +58,7 @@ export class ChatGateway
     }
   }
 
-  sendMessageToChat(chatId: string, message: string, author: string): void {
-    this.server.to(chatId).emit('message', { chatId, message, author });
+  sendMessageToChat(chatId: string, message: string, author: User): void {
+    this.server.to(chatId).emit('message', { chatId, content: message, author });
   }
 }

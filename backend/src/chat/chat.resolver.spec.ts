@@ -74,6 +74,26 @@ describe('ChatResolver', () => {
     });
   });
 
+  describe('getChatById', () => {
+    it('should return chat for a specific id', async () => {
+      const chat = { id: '1', users: [], messages: [] };
+      const id = '1'
+      mockChatService.findById.mockResolvedValue(chat);
+
+      const result = await resolver.getChatById(id);
+
+      expect(result).toEqual(chat);
+      expect(mockChatService.findById).toHaveBeenCalledWith(id);
+    });
+
+    it('should throw an error if chat is not found', async () => {
+      mockChatService.findById.mockResolvedValue(null);
+
+      await expect(resolver.getChatById('1')).rejects.toThrow(HttpException);
+      await expect(resolver.getChatById('1')).rejects.toThrow('Chat not found');
+    });
+  });
+
   describe('createChat', () => {
     it('should create a new chat', async () => {
       const chat = { id: '1', users: [], messages: [] };
@@ -113,7 +133,7 @@ describe('ChatResolver', () => {
       expect(mockChatService.addMessageToChatQueue).toHaveBeenCalledWith(
         '1',
         'message',
-        '1',
+        user,
       );
     });
 

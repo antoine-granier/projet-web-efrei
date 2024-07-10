@@ -23,6 +23,13 @@ export class ChatResolver {
     return this.chatService.findByUser(userId);
   }
 
+  @Query(() => Chat)
+  async getChatById(@Args('chatId') chatId: string): Promise<Chat> {
+    const chat = await this.chatService.findById(chatId);
+    if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
+    return chat;
+  }
+
   @Mutation(() => Chat)
   async createChat(
     @Args('userIds', { type: () => [String] }) userIds: string[],
@@ -54,7 +61,7 @@ export class ChatResolver {
     if (!user)
       throw new HttpException('Author not found', HttpStatus.NOT_FOUND);
 
-    await this.chatService.addMessageToChatQueue(chatId, message, author);
+    await this.chatService.addMessageToChatQueue(chatId, message, user);
     return true;
   }
 
@@ -70,5 +77,19 @@ export class ChatResolver {
     if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
     return this.chatService.addUser(userId, chatId);
+  }
+
+  @Mutation(() => Chat)
+  async removeUser(
+    @Args('userId') userId: string,
+    @Args('chatId') chatId: string,
+  ): Promise<Chat> {
+    const chat = await this.chatService.findById(chatId);
+    if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
+
+    const user = await this.userService.findById(userId);
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    return this.chatService.removeUser(userId, chatId);
   }
 }
