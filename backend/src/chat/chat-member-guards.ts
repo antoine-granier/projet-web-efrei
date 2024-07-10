@@ -14,6 +14,8 @@ export class ChatMemberGuard implements CanActivate {
     const ctx = GqlExecutionContext.create(context).getContext();
     const authorizationHeader = ctx.req.headers.authorization;
 
+    if(!authorizationHeader) throw new HttpException('No token', HttpStatus.UNAUTHORIZED);
+
     const [type, token] = authorizationHeader.split(' ');
 
     const payload = await this.jwtService.verifyAsync(token, {
@@ -32,6 +34,8 @@ export class ChatMemberGuard implements CanActivate {
       throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
     }
 
+    console.log(payload);
+    
     const isUserInChat = chat.users.some(chatUser => chatUser.id === payload.sub);
     if (!isUserInChat) {
       throw new HttpException('User not in chat', HttpStatus.FORBIDDEN);

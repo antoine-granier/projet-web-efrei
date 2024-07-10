@@ -459,6 +459,8 @@ export class ChatService {
   }
 
   async removeUser(userId: string, chatId: string): Promise<Chat> {
+    try {
+      // Trouver l'entrée dans la table de jointure UserChat à supprimer
     const userChatEntry = await this.prisma.userChat.findFirst({
         where: {
             userId: userId,
@@ -470,7 +472,7 @@ export class ChatService {
         throw new Error(`User ${userId} is not part of Chat ${chatId}`);
     }
 
-    try {
+      // Supprimer l'entrée dans la table de jointure UserChat
         await this.prisma.userChat.delete({
             where: {
                 userId_chatId: {
@@ -480,6 +482,7 @@ export class ChatService {
             },
         });
 
+      // Récupérer les données mises à jour du chat
         const updatedChat = await this.prisma.chat.findUnique({
             where: { id: chatId },
             include: {
@@ -500,6 +503,7 @@ export class ChatService {
             throw new Error(`Chat ${chatId} not found after removing user`);
         }
 
+      // Transformer les données du chat pour le retour
         const transformedChat: Chat = {
             id: updatedChat.id,
             users: updatedChat.users.map(userChat => ({
@@ -529,8 +533,10 @@ export class ChatService {
             })),
         };
 
+      // Mettre à jour le cache avec les données du chat
         await this.cacheManager.set(`chats-${transformedChat.id}`, transformedChat);
 
+      // Récupérer et mettre à jour la liste des chats dans le cache
         const chatsData = await this.prisma.chat.findMany({
             include: {
                 users: {
@@ -583,5 +589,4 @@ export class ChatService {
         throw new Error('Could not remove user from chat');
     }
 }
-
 }  
