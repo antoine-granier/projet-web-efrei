@@ -75,15 +75,6 @@ const Chat = () => {
     },
   });
 
-  const addMessageToList = (msg: Message) => {
-    if (messages.find((message) => message.id === msg.id)) return;
-    setMessages((prevMessages) => {
-      if (prevMessages.find((message) => message.id === msg.id))
-        return prevMessages;
-      return [...prevMessages, msg];
-    });
-  };
-
   useEffect(() => {
     if (user && id) {
       const socket = createSocket(user.token);
@@ -97,7 +88,10 @@ const Chat = () => {
         });
       });
 
-      socket.on("message", addMessageToList);
+      socket.on("message", (data: Message) => {
+        setMessages((prevMessages) => [...prevMessages, data]);
+      });
+
       return () => {
         socket.disconnect();
       };
