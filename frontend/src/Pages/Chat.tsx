@@ -14,7 +14,7 @@ import {
   IoIosTrash,
   IoMdSend,
 } from "react-icons/io";
-import { useEffect, useState } from "react";
+import { KeyboardEventHandler, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createSocket } from "../socket";
 import AddUserModal from "../components/AddUserModal";
@@ -144,6 +144,24 @@ const Chat = () => {
     return addMessage();
   };
 
+  const onSubmit = () => {
+    if (message.length <= 0) return toast.info("Message can't be empty.");
+    toast.promise(sendMessage, {
+      loading: "Sending message...",
+      success: async () => {
+        setMessage("");
+        return `Message sent.`;
+      },
+      error: "Error. Try later...",
+    });
+  };
+
+  const handleKeyDown: KeyboardEventHandler = (event) => {
+    if (event.key === "Enter") {
+      onSubmit();
+    }
+  };
+
   return (
     <div key={id}>
       <div className="flex items-center justify-between border-b p-2">
@@ -203,20 +221,11 @@ const Chat = () => {
           placeholder="Write something..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
         <Button
           onClick={async () => {
-            if (message.length <= 0) {
-              return toast.warning("Message can't be empty.");
-            }
-            toast.promise(sendMessage, {
-              loading: "Sending message...",
-              success: async () => {
-                setMessage("");
-                return `Message sent.`;
-              },
-              error: "Error. Try later...",
-            });
+            onSubmit();
           }}
         >
           <IoMdSend />
