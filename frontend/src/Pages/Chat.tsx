@@ -1,13 +1,19 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
 import { Button, Spinner, TextInput } from "flowbite-react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   AddMessageToChatDocument,
   GetChatByIdDocument,
+  RemoveUserDocument,
 } from "../__generated__/graphql";
 import { useUserStore } from "../store/userStore";
 import Message from "../components/Message";
-import { IoIosPeople, IoIosPersonAdd, IoMdSend } from "react-icons/io";
+import {
+  IoIosPeople,
+  IoIosPersonAdd,
+  IoIosTrash,
+  IoMdSend,
+} from "react-icons/io";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { createSocket } from "../socket";
@@ -44,6 +50,19 @@ const ADD_MESSAGE_TO_CHAT = gql`
   }
 `;
 
+const REMOVE_USER_FROM_CHAT = gql`
+  mutation removeUser($userId: String!, $chatId: String!) {
+    removeUser(userId: $userId, chatId: $chatId) {
+      id
+      users {
+        id
+        name
+        email
+      }
+    }
+  }
+`;
+
 type Message = {
   __typename?: "Message" | undefined;
   id: string;
@@ -57,11 +76,13 @@ type Message = {
 };
 
 const Chat = () => {
+  const client = useApolloClient();
   const { id } = useParams();
   const user = useUserStore((state) => state.user);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { data, loading, error } = useQuery(GetChatByIdDocument, {
     variables: { chatId: id || "" },
@@ -72,6 +93,13 @@ const Chat = () => {
       chatId: id || "",
       message,
       author: user?.id || "",
+    },
+  });
+
+  const [removeUser] = useMutation(RemoveUserDocument, {
+    variables: {
+      chatId: id || "",
+      userId: user?.id || "",
     },
   });
 
@@ -128,9 +156,24 @@ const Chat = () => {
             })}
           </p>
         </div>
-        <Button size="xs" onClick={() => setOpen(!open)}>
-          <IoIosPersonAdd className="w-6 h-6" />
-        </Button>
+        <div className="flex gap-1">
+          <Button size="xs" onClick={() => setOpen(!open)}>
+            <IoIosPersonAdd className="w-6 h-6" />
+          </Button>
+          <Button
+            size="xs"
+            color="red"
+            onClick={async () => {
+              await removeUser();
+              await client.refetchQueries({
+                include: ["getChatsByUser"],
+              });
+              navigate("/");
+            }}
+          >
+            <IoIosTrash className="w-6 h-6" />
+          </Button>
+        </div>
       </div>
       <div className="h-[calc(100vh-2rem-85px)] overflow-auto flex flex-col items-center">
         {loading ? (
