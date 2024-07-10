@@ -54,7 +54,6 @@ type Mutation {
   createChat(userIds: [String!]!): Chat!
   addMessageToChat(chatId: String!, message: String!, author: String!): Boolean!
   addUser(userId: String!, chatId: String!): Chat!
-  createMessage(content: String!, author: String!, chat: String!): Message!
   signIn(email: String!, password: String!): SignInReturn!
   signUp(name: String!, email: String!, password: String!): SignUpReturn!
 }

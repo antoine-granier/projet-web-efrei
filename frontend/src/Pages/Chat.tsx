@@ -10,8 +10,7 @@ import Message from "../components/Message";
 import { IoMdSend } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { io } from "socket.io-client";
-import { socket } from "../socket";
+import { createSocket } from "../socket";
 
 const GET_CHAT_BY_ID = gql`
   query getChatById($chatId: String!) {
@@ -22,6 +21,7 @@ const GET_CHAT_BY_ID = gql`
         name
       }
       messages {
+        id
         author {
           id
           email
@@ -43,32 +43,23 @@ const ADD_MESSAGE_TO_CHAT = gql`
   }
 `;
 
+type Message = {
+  __typename?: "Message" | undefined;
+  id: string;
+  content: string;
+  author: {
+    __typename?: "User" | undefined;
+    id: string;
+    email: string;
+    name: string;
+  };
+};
+
 const Chat = () => {
   const { id } = useParams();
   const user = useUserStore((state) => state.user);
   const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    if (user && id) {
-      socket.connect();
-
-      socket.on("connect", () => {
-        socket.emit("join", {
-          userId: user.id,
-          chatId: id,
-        });
-      });
-
-      socket.on("message", (data) => {
-        console.log(data);
-      });
-    }
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
+  const [messages, setMessages] = useState<Message[]>([]);
   const { data, loading, error } = useQuery(GetChatByIdDocument, {
     variables: { chatId: id || "" },
   });
@@ -81,6 +72,41 @@ const Chat = () => {
     },
   });
 
+  const addMessageToList = (msg: Message) => {
+    if (messages.find((message) => message.id === msg.id)) return;
+    setMessages((prevMessages) => {
+      if (prevMessages.find((message) => message.id === msg.id))
+        return prevMessages;
+      return [...prevMessages, msg];
+    });
+  };
+
+  useEffect(() => {
+    if (user && id) {
+      const socket = createSocket(user.token);
+
+      socket.connect();
+
+      socket.on("connect", () => {
+        socket.emit("join", {
+          userId: user.id,
+          chatId: id,
+        });
+      });
+
+      socket.on("message", addMessageToList);
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [user, id]);
+
+  useEffect(() => {
+    if (data && data.getChatById.messages.length > 0) {
+      setMessages(data.getChatById.messages);
+    }
+  }, [data]);
+
   const sendMessage = async () => {
     return addMessage();
   };
@@ -92,10 +118,10 @@ const Chat = () => {
           <Spinner />
         ) : error ? (
           <p>Error during messages loading.</p>
-        ) : !data || data.getChatById.messages.length <= 0 ? (
+        ) : messages.length <= 0 ? (
           <p>No message.</p>
         ) : (
-          data.getChatById.messages.map((message, index) => {
+          messages.map((message, index) => {
             return (
               <Message
                 key={index}
@@ -122,6 +148,7 @@ const Chat = () => {
             toast.promise(sendMessage, {
               loading: "Sending message...",
               success: () => {
+                setMessage("");
                 return `Message send.`;
               },
               error: "Error. Try later...",

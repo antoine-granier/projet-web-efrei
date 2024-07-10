@@ -46,7 +46,7 @@ const ChatList = () => {
               return (
                 <div
                   key={chat.id}
-                  className="flex items-center justify-between p-2 gap-2 border-t border-b hover:bg-slate-200 cursor-pointer"
+                  className="flex items-center justify-between p-2 gap-2 border-b hover:bg-slate-200 cursor-pointer"
                   onClick={() => navigate(chat.id)}
                 >
                   <IoIosChatbubbles className="h-8 w-8" />

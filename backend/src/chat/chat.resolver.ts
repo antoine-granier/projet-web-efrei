@@ -61,7 +61,7 @@ export class ChatResolver {
     if (!user)
       throw new HttpException('Author not found', HttpStatus.NOT_FOUND);
 
-    await this.chatService.addMessageToChatQueue(chatId, message, author);
+    await this.chatService.addMessageToChatQueue(chatId, message, user);
     return true;
   }
 

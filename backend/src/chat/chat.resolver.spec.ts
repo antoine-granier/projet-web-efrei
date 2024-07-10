@@ -133,7 +133,7 @@ describe('ChatResolver', () => {
       expect(mockChatService.addMessageToChatQueue).toHaveBeenCalledWith(
         '1',
         'message',
-        '1',
+        user,
       );
     });
 

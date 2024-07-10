@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Alert, Button, Label, Modal } from "flowbite-react";
 import Select, { MultiValue, StylesConfig } from "react-select";
 import { toast } from "sonner";
+import { useUserStore } from "../store/userStore";
 
 const CREATE_CHAT = gql`
   mutation createChat($userIds: [String!]!) {
@@ -45,13 +46,16 @@ const customStyles: StylesConfig<UserOption, true> = {
 
 const CreateChatModal: React.FC<CreateChatModalProps> = ({ open, setOpen }) => {
   const [users, setUsers] = useState<MultiValue<UserOption>>([]);
+  const user = useUserStore((state) => state.user);
 
   const client = useApolloClient();
 
   const { data, loading } = useQuery(GetUsersDocument);
   const [createChat, { loading: createLoading, error: createError }] =
     useMutation(CreateChatDocument, {
-      variables: { userIds: users.map((user) => user.value) },
+      variables: {
+        userIds: [...users.map((user) => user.value), user?.id ? user.id : ""],
+      },
     });
 
   return (
@@ -66,12 +70,14 @@ const CreateChatModal: React.FC<CreateChatModalProps> = ({ open, setOpen }) => {
           <Select
             styles={customStyles}
             options={
-              data?.getUsers.map((user) => {
-                return {
-                  label: user.name,
-                  value: user.id,
-                };
-              }) || []
+              data?.getUsers
+                .filter((u) => u.id !== user?.id)
+                .map((user) => {
+                  return {
+                    label: user.name,
+                    value: user.id,
+                  };
+                }) || []
             }
             isLoading={loading}
             isClearable

@@ -28,8 +28,21 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request?.headers?.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+  private extractTokenFromHeader(request: any): string | undefined {
+    if (request.handshake && request.handshake.headers) {
+      // WebSocket request
+      const authorizationHeader = request.handshake.headers.authorization;
+      if (authorizationHeader) {
+          const [type, token] = authorizationHeader.split(' ');
+          return type === 'Bearer' ? token : undefined;
+      }
+  } else if (request.headers) {
+      // HTTP request
+      const authorizationHeader = request.headers.authorization;
+      if (authorizationHeader) {
+          const [type, token] = authorizationHeader.split(' ');
+          return type === 'Bearer' ? token : undefined;
+      }
+  }
   }
 }

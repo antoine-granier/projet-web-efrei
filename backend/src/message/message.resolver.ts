@@ -24,21 +24,4 @@ export class MessageResolver {
     if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
     return this.messageService.findByChat(chatId);
   }
-
-  @Mutation(() => Message)
-  async createMessage(
-    @Args('content') content: string,
-    @Args('author') author: string,
-    @Args('chat') chat: string,
-  ): Promise<Message> {
-    const chatData = await this.chatService.findById(chat);
-    if (!chatData)
-      throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
-
-    const user = await this.userService.findById(author);
-    if (!user)
-      throw new HttpException('Author not found', HttpStatus.NOT_FOUND);
-
-    return this.messageService.create(content, author, chat);
-  }
 }

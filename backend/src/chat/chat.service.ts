@@ -5,6 +5,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Store } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { Chat } from '../models/chat.model';
+import { User } from 'src/models/user.model';
 
 @Injectable()
 export class ChatService {
@@ -19,10 +20,10 @@ export class ChatService {
   async addMessageToChatQueue(
     chatId: string,
     message: string,
-    userId: string,
+    user: User,
   ): Promise<void> {
     try {
-      await this.defaultQueue.add('newMessage', { message, chatId, userId });
+      await this.defaultQueue.add('newMessage', { message, chatId, user });
     } catch (error) {
       this.logger.error(
         `Failed to add message to chat queue: ${error.message}`,

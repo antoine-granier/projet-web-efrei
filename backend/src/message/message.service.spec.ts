@@ -14,6 +14,9 @@ describe('MessageService', () => {
       findMany: jest.fn(),
       create: jest.fn(),
     },
+    user: {
+      findUnique: jest.fn()
+    }
   };
 
   const mockCacheManager = {
@@ -210,8 +213,11 @@ describe('MessageService', () => {
         },
       };
       const messagesData = [messageData];
+      const authorData = { id: '1', name: 'Author', email: 'author@example.com' };
+
       mockPrismaService.message.create.mockResolvedValue(messageData);
       mockPrismaService.message.findMany.mockResolvedValue(messagesData);
+      mockPrismaService.user.findUnique.mockResolvedValue(authorData)
 
       const result = await service.create('Hello', '1', '1');
 
@@ -231,7 +237,7 @@ describe('MessageService', () => {
       expect(mockChatService.addMessageToChatQueue).toHaveBeenCalledWith(
         '1',
         'Hello',
-        '1',
+        authorData,
       );
     });
 
