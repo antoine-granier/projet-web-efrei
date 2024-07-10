@@ -2,7 +2,8 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ChatService } from './chat.service';
 import { Chat } from '../models/chat.model';
 import { UserService } from '../user/user.service';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import { ChatMemberGuard } from './chat-member-guards';
 
 @Resolver()
 export class ChatResolver {
@@ -24,6 +25,7 @@ export class ChatResolver {
   }
 
   @Query(() => Chat)
+  @UseGuards(ChatMemberGuard)
   async getChatById(@Args('chatId') chatId: string): Promise<Chat> {
     const chat = await this.chatService.findById(chatId);
     if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
@@ -44,6 +46,7 @@ export class ChatResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(ChatMemberGuard)
   async addMessageToChat(
     @Args('chatId') chatId: string,
     @Args('message') message: string,
@@ -66,6 +69,7 @@ export class ChatResolver {
   }
 
   @Mutation(() => Chat)
+  @UseGuards(ChatMemberGuard)
   async addUser(
     @Args('userId') userId: string,
     @Args('chatId') chatId: string,
@@ -80,6 +84,7 @@ export class ChatResolver {
   }
 
   @Mutation(() => Chat)
+  @UseGuards(ChatMemberGuard)
   async removeUser(
     @Args('userId') userId: string,
     @Args('chatId') chatId: string,
