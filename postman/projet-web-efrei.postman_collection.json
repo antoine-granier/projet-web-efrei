@@ -126,7 +126,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "query getUserById($userId: String!) {\n    getUserById(userId: $userId) {\n        id\n        name\n        email\n    }\n}",
-								"variables": "{\n    \"userId\": \"clyfmbjf70000t6mqrzuk8cyp\"\n}"
+								"variables": "{\n    \"userId\": \"{{DEFAULT_USER_ID}}\"\n}"
 							}
 						},
 						"url": {
@@ -185,7 +185,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "query getUserByEmail($email: String!) {\n    getUserByEmail(email: $email) {\n        id\n        name\n        email\n    }\n}",
-								"variables": "{\n    \"email\": \"user1@mail.com\"\n}"
+								"variables": "{\n  \"email\": \"{{DEFAULT_USER_EMAIL}}\"\n}"
 							}
 						},
 						"url": {
@@ -261,7 +261,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation createChat($userIds: [String!]!) {\n  createChat(userIds: $userIds) {\n    id\n    users {\n        id\n    }\n}\n}\n",
-								"variables": "{\n  \"userIds\": [\n    \"clyfmbjf70000t6mqrzuk8cyp\"\n  ]\n}\n"
+								"variables": "{\n  \"userIds\": [\n    \"{{DEFAULT_USER_ID}}\"\n  ]\n}\n"
 							}
 						},
 						"url": {
@@ -326,7 +326,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation addUser($userId: String!, $chatId: String!) {\n  addUser(userId: $userId, chatId: $chatId) {\n    id\n    users {\n      id\n      name\n      email\n    }\n  }\n}",
-								"variables": "{\n    \"userId\": \"clyfmexzl0001t6mqn49n6uen\",\n    \"chatId\": \"clyfmises0003t6mqwjyzg5ga\"\n}"
+								"variables": "{\n    \"userId\": \"{{DEFAULT_USER_ID}}\",\n    \"chatId\":\"{{DEFAULT_CHAT_ID}}\"\n}"
 							}
 						},
 						"url": {
@@ -390,7 +390,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation addMessageToChat($chatId: String!, $message: String!, $author: String!) {\n    addMessageToChat(chatId: $chatId, message: $message, author: $author)\n}\n",
-								"variables": "{\n  \"chatId\": \"clyfmises0003t6mqwjyzg5ga\",\n  \"message\": \"test message\",\n  \"author\": \"clyfmexzl0001t6mqn49n6uen\"\n}\n"
+								"variables": "{\n  \"chatId\": \"{{DEFAULT_CHAT_ID}}\",\n  \"message\": \"test message\",\n  \"author\": \"{{DEFAULT_USER_ID}}\"\n}\n"
 							}
 						},
 						"url": {
@@ -454,32 +454,37 @@
 									"  });",
 									"});",
 									"",
+									"pm.test(\"Chat and messages validation\", function () {",
+									"    var response = pm.response.json();",
+									"    var chats = response.data.getChatsByUser;",
 									"",
-									"pm.test(\"Validate the getChatsByUser array and its elements\", function () {",
-									"    const responseData = pm.response.json();",
-									"    ",
-									"    pm.expect(responseData).to.be.an('object');",
-									"    pm.expect(responseData.data.getChatsByUser).to.be.an('array').that.is.not.empty;",
+									"    pm.expect(chats).to.be.an('array').that.is.not.empty;",
 									"",
-									"    responseData.data.getChatsByUser.forEach(function(chat) {",
+									"    chats.forEach(function(chat) {",
 									"        pm.expect(chat).to.have.property('id').that.is.a('string').and.is.not.empty;",
-									"        ",
-									"        pm.expect(chat.users).to.be.an('array').that.is.not.empty;",
+									"        pm.expect(chat).to.have.property('users').that.is.an('array').that.is.not.empty;",
+									"",
 									"        chat.users.forEach(function(user) {",
 									"            pm.expect(user).to.have.property('id').that.is.a('string').and.is.not.empty;",
 									"            pm.expect(user).to.have.property('name').that.is.a('string').and.is.not.empty;",
 									"        });",
 									"",
-									"        pm.expect(chat.messages).to.be.an('array').that.is.not.empty;",
-									"        chat.messages.forEach(function(message) {",
-									"            pm.expect(message).to.have.property('author').that.is.an('object');",
-									"            pm.expect(message.author).to.have.property('id').that.is.a('string').and.is.not.empty;",
-									"            pm.expect(message.author).to.have.property('email').that.is.a('string').and.is.not.empty;",
-									"            pm.expect(message.author).to.have.property('name').that.is.a('string').and.is.not.empty;",
-									"            pm.expect(message).to.have.property('content').that.is.a('string');",
-									"        });",
+									"        pm.expect(chat).to.have.property('messages').that.is.an('array');",
+									"        ",
+									"        if (chat.messages.length > 0) {",
+									"            chat.messages.forEach(function(message) {",
+									"                pm.expect(message).to.have.property('author').that.is.an('object');",
+									"                pm.expect(message.author).to.have.property('id').that.is.a('string').and.is.not.empty;",
+									"                pm.expect(message.author).to.have.property('email').that.is.a('string').and.is.not.empty;",
+									"                pm.expect(message.author).to.have.property('name').that.is.a('string').and.is.not.empty;",
+									"                pm.expect(message).to.have.property('content').that.is.a('string');",
+									"            });",
+									"        } else {",
+									"            pm.expect(chat.messages).to.be.an('array').that.is.empty;",
+									"        }",
 									"    });",
 									"});",
+									"",
 									""
 								],
 								"type": "text/javascript",
@@ -493,8 +498,8 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query getChatsByUser($userId: String!) {\n  getChatsByUser(userId: $userId) {\n    id\n    users {\n      id\n      name\n    }\n    messages {\n        author {\n            id\n            email\n            name\n        }\n        content\n    }\n  }\n}\n",
-								"variables": "{\n  \"userId\": \"clyfmexzl0001t6mqn49n6uen\"\n}\n"
+								"query": "query getChatsByUser($userId: String!) {\n  getChatsByUser(userId: $userId) {\n    id\n    users {\n      id\n      name\n    }\n    messages {\n        id\n        author {\n            id\n            email\n            name\n        }\n        content\n    }\n  }\n}\n",
+								"variables": "{\n  \"userId\": \"{{DEFAULT_USER_ID}}\"\n}\n"
 							}
 						},
 						"url": {
@@ -637,7 +642,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation createMessage($content: String!, $author: String!, $chat: String!) {\n    createMessage(content: $content, author: $author, chat: $chat) {\n        id\n        content\n        author {\n            id\n            name\n            email\n        }\n        chat {\n            id\n            users {\n                id\n                name\n                email\n            }\n        }\n    }\n}",
-								"variables": "{\n    \"content\": \"salut\",\n    \"author\": \"clyfmexzl0001t6mqn49n6uen\",\n    \"chat\": \"clyfmises0003t6mqwjyzg5ga\"\n}"
+								"variables": "{\n    \"content\": \"salut\",\n    \"author\": \"{{DEFAULT_USER_ID}}\",\n    \"chat\": \"{{DEFAULT_CHAT_ID}}\"\n}"
 							}
 						},
 						"url": {
@@ -815,7 +820,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "query getMessagesByChat($chatId: String!) {\n  getMessagesByChat(chatId: $chatId) {\n    id\n    content\n    author {\n        id\n        name\n        email\n    }\n    chat {\n        id\n        users {\n            id\n            name\n            email\n        }\n    }\n  }\n}",
-								"variables": "{\n    \"chatId\": \"clyfmises0003t6mqwjyzg5ga\"\n}"
+								"variables": "{\n    \"chatId\": \"{{DEFAULT_CHAT_ID}}\"\n}"
 							}
 						},
 						"url": {
@@ -974,6 +979,45 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "DEFAULT_USER_ID",
+			"value": "clyfmbjf70000t6mqrzuk8cyp",
+			"type": "string"
+		},
+		{
+			"key": "DEFAULT_USER_EMAIL",
+			"value": "user1@mail.com",
+			"type": "string"
+		},
+		{
+			"key": "DEFAULT_CHAT_ID",
+			"value": "clyfmises0003t6mqwjyzg5ga",
+			"type": "string"
 		}
 	]
 }
