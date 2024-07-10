@@ -1,8 +1,9 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { GetUsersDocument } from "../__generated__/graphql";
+import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
+import { CreateChatDocument, GetUsersDocument } from "../__generated__/graphql";
 import React, { useState } from "react";
-import { Button, Label, Modal } from "flowbite-react";
-import Select from "react-select";
+import { Alert, Button, Label, Modal } from "flowbite-react";
+import Select, { MultiValue, StylesConfig } from "react-select";
+import { toast } from "sonner";
 
 const CREATE_CHAT = gql`
   mutation createChat($userIds: [String!]!) {
@@ -30,48 +31,77 @@ type CreateChatModalProps = {
   setOpen: (open: boolean) => void;
 };
 
-const CreateChatModal: React.FC<CreateChatModalProps> = ({ open, setOpen }) => {
-  const [userIds, setUserIds] = useState([]);
+type UserOption = {
+  label: string;
+  value: string;
+};
 
-  const { data, loading, error } = useQuery(GetUsersDocument);
-  const [createChat, { loading: createLoading, error: errorLoading }] =
-    useMutation(CREATE_CHAT, {
-      variables: { userIds: userIds },
+const customStyles: StylesConfig<UserOption, true> = {
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+  }),
+};
+
+const CreateChatModal: React.FC<CreateChatModalProps> = ({ open, setOpen }) => {
+  const [users, setUsers] = useState<MultiValue<UserOption>>([]);
+
+  const client = useApolloClient();
+
+  const { data, loading } = useQuery(GetUsersDocument);
+  const [createChat, { loading: createLoading, error: createError }] =
+    useMutation(CreateChatDocument, {
+      variables: { userIds: users.map((user) => user.value) },
     });
 
   return (
     <Modal dismissible show={open} onClose={() => setOpen(false)}>
       <Modal.Header>Create chat</Modal.Header>
-      <Modal.Body>
-        <div className="space-y-6">
-          <Label>
-            Users :
-            <Select
-              options={
-                data?.getUsers.map((user) => {
-                  return {
-                    label: user.name,
-                    value: user.id,
-                  };
-                }) || []
-              }
-              isLoading={loading}
-              isClearable
-              isDisabled={loading}
-              isMulti
-              onChange={(val) => console.log(val)}
-            />
-          </Label>
-        </div>
-      </Modal.Body>
+      <div className="p-6">
+        <Alert color="info" className="mb-4">
+          <span>Choose users you want to add in the chat.</span>
+        </Alert>
+        <Label>
+          Users :
+          <Select
+            styles={customStyles}
+            options={
+              data?.getUsers.map((user) => {
+                return {
+                  label: user.name,
+                  value: user.id,
+                };
+              }) || []
+            }
+            isLoading={loading}
+            isClearable
+            isDisabled={loading}
+            isMulti
+            onChange={(val) => setUsers(val)}
+          />
+        </Label>
+      </div>
       <Modal.Footer className="flex justify-end">
         <Button color="red" onClick={() => setOpen(false)}>
           Decline
         </Button>
         <Button
+          disabled={createLoading}
+          isProcessing={createLoading}
           onClick={async () => {
+            if (users.length <= 0) {
+              toast.info("You need to choose at least one user.");
+              return;
+            }
             await createChat();
-            setOpen(false);
+            if (createError) {
+              toast.error("Error during chat creation. Try later...");
+            } else {
+              await client.refetchQueries({
+                include: ["getChatsByUser"],
+              });
+              setOpen(false);
+            }
           }}
         >
           Create

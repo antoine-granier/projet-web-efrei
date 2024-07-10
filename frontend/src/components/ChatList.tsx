@@ -3,6 +3,7 @@ import { useUserStore } from "../store/userStore";
 import { Spinner } from "flowbite-react";
 import { GetChatsByUserDocument } from "../__generated__/graphql";
 import { IoIosChatbubbles } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 const GET_CHAT_BY_USER = gql`
   query getChatsByUser($userId: String!) {
@@ -26,6 +27,7 @@ const GET_CHAT_BY_USER = gql`
 
 const ChatList = () => {
   const user = useUserStore((state) => state.user);
+  const navigate = useNavigate();
 
   const { data, loading, error } = useQuery(GetChatsByUserDocument, {
     variables: { userId: user?.id || "" },
@@ -44,7 +46,8 @@ const ChatList = () => {
               return (
                 <div
                   key={chat.id}
-                  className="flex items-center justify-between p-2 gap-2"
+                  className="flex items-center justify-between p-2 gap-2 border-t border-b hover:bg-slate-200 cursor-pointer"
+                  onClick={() => navigate(chat.id)}
                 >
                   <IoIosChatbubbles className="h-8 w-8" />
                   <div className="w-full flex flex-col gap-1">

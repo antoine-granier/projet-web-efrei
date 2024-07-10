@@ -11,11 +11,13 @@ import {
   ApolloProvider,
   HttpLink,
   InMemoryCache,
+  useQuery,
 } from "@apollo/client";
 import { useEffect, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useUserStore } from "./store/userStore";
 import Register from "./Pages/Register";
+import Chat from "./Pages/Chat";
 
 function App() {
   const { user, setUser } = useUserStore();
@@ -35,6 +37,11 @@ function App() {
   const client = new ApolloClient({
     link: authLink.concat(httpLink),
     cache: new InMemoryCache(),
+    defaultOptions: {
+      watchQuery: {
+        fetchPolicy: "cache-and-network",
+      },
+    },
   });
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -66,9 +73,8 @@ function App() {
 
   const modules = [
     {
-      path: "home",
-      element: <div>home</div>,
-      title: "Home",
+      path: ":id",
+      element: <Chat />,
     },
   ];
 
@@ -87,7 +93,11 @@ function App() {
       children: [
         {
           path: "",
-          element: <Navigate to="home" />,
+          element: (
+            <div className="h-full flex justify-center items-center">
+              Choose a chat.
+            </div>
+          ),
         },
         ...modules,
       ],

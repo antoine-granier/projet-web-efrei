@@ -24,6 +24,13 @@ export class ChatResolver {
     return this.chatService.findByUser(userId);
   }
 
+  @Query(() => Chat)
+  async getChatById(@Args('chatId') chatId: string): Promise<Chat> {
+    const chat = await this.chatService.findById(chatId);
+    if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
+    return chat;
+  }
+
   @Mutation(() => Chat)
   async createChat(
     @Args('userIds', { type: () => [String] }) userIds: string[],
