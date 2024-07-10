@@ -51,23 +51,6 @@ jobs:
           cd backend
           npm run build --if-present
 
-      - name: Start Backend
-        run: |
-          cd backend
-          npm start &
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: Wait for Backend to Start
-        run: |
-          # Wait for the backend to be available
-          timeout 60s bash -c 'until curl -s http://localhost:3000; do sleep 1; done'
-
-      - name: Run Postman Tests
-        run: |
-          npm install -g newman
-          newman run postman/projet-web-efrei.postman_collection -e postman/ENV.postman_environment
-
       - name: Test Backend
         run: |
           cd backend
@@ -80,9 +63,19 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Deploy Backend on Render
+      - name: Run API Tests
+        id: run-newman
+        uses: anthonyvscode/newman-action@v1
+        with:
+          collection: postman/projet-web-efrei.postman_collection.json
+          reporters: cli
+
+      - name: Output summary to console
+        run: echo ${{ steps.run-newman.outputs.summary }}
+
+      - name: Deploy on Render
         run: |
-          curl -n ${{ secrets.DEPLOY_URL }}
+          curl -n ${{ secrets.DEPLOY_URL }} \
 
       - name: Install Dependencies Frontend
         run: |
@@ -94,6 +87,6 @@ jobs:
           cd frontend
           npm run build --if-present
 
-      - name: Deploy Frontend on Render
+      - name: Deploy on Render
         run: |
-          curl -n ${{ secrets.DEPLOY_FRONT_URL }}
+          curl -n ${{ secrets.DEPLOY_FRONT_URL }} \
