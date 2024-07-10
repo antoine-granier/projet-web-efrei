@@ -80,6 +80,11 @@ jobs:
           cache: "npm"
           cache-dependency-path: "**/package-lock.json"
 
+      - name: Install Dependencies Backend
+        run: |
+          cd backend
+          npm ci
+
       - name: Test Backend
         run: |
           cd backend
@@ -102,6 +107,11 @@ jobs:
           node-version: 21.x
           cache: "npm"
           cache-dependency-path: "**/package-lock.json"
+
+      - name: Install Dependencies Backend
+        run: |
+          cd backend
+          npm ci
 
       - name: Build Backend
         run: |
