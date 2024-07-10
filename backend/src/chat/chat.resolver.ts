@@ -78,4 +78,18 @@ export class ChatResolver {
 
     return this.chatService.addUser(userId, chatId);
   }
+
+  @Mutation(() => Chat)
+  async removeUser(
+    @Args('userId') userId: string,
+    @Args('chatId') chatId: string,
+  ): Promise<Chat> {
+    const chat = await this.chatService.findById(chatId);
+    if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
+
+    const user = await this.userService.findById(userId);
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    return this.chatService.removeUser(userId, chatId);
+  }
 }
