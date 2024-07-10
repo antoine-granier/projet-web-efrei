@@ -1,11 +1,12 @@
 import { Alert, Button, Label, Modal } from "flowbite-react";
 import React, { useState } from "react";
-import Select, { MultiValue, StylesConfig } from "react-select";
+import Select, { StylesConfig } from "react-select";
 import { useUserStore } from "../store/userStore";
 import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
 import { AddUserDocument, GetUsersDocument } from "../__generated__/graphql";
 import { toast } from "sonner";
 
+// @ts-ignore
 const ADD_USER_TO_CHAT = gql`
   mutation addUser($userId: String!, $chatId: String!) {
     addUser(userId: $userId, chatId: $chatId) {

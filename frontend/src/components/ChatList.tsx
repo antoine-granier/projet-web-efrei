@@ -6,6 +6,7 @@ import { IoIosChatbubbles } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 
+// @ts-ignore
 const GET_CHAT_BY_USER = gql`
   query getChatsByUser($userId: String!) {
     getChatsByUser(userId: $userId) {

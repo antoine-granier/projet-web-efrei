@@ -6,6 +6,7 @@ import Select, { MultiValue, StylesConfig } from "react-select";
 import { toast } from "sonner";
 import { useUserStore } from "../store/userStore";
 
+// @ts-ignore
 const CREATE_CHAT = gql`
   mutation createChat($userIds: [String!]!) {
     createChat(userIds: $userIds) {
@@ -17,6 +18,7 @@ const CREATE_CHAT = gql`
   }
 `;
 
+// @ts-ignore
 const GET_USERS = gql`
   query getUsers {
     getUsers {

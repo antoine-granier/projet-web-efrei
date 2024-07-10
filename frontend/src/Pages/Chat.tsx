@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { createSocket } from "../socket";
 import AddUserModal from "../components/AddUserModal";
 
+// @ts-ignore
 const GET_CHAT_BY_ID = gql`
   query getChatById($chatId: String!) {
     getChatById(chatId: $chatId) {
@@ -40,6 +41,7 @@ const GET_CHAT_BY_ID = gql`
   }
 `;
 
+// @ts-ignore
 const ADD_MESSAGE_TO_CHAT = gql`
   mutation addMessageToChat(
     $chatId: String!
@@ -50,6 +52,7 @@ const ADD_MESSAGE_TO_CHAT = gql`
   }
 `;
 
+// @ts-ignore
 const REMOVE_USER_FROM_CHAT = gql`
   mutation removeUser($userId: String!, $chatId: String!) {
     removeUser(userId: $userId, chatId: $chatId) {
