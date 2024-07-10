@@ -443,4 +443,16 @@ export class ChatService {
       throw new Error('Could not add user to chat');
     }
   }
+
+  async isUserInChat(userId: string, chatId: string): Promise<boolean> {
+    const chat = await this.prisma.chat.findUnique({
+      where: { id: chatId },
+      include: { users: true },
+    });
+
+    if (!chat) {
+      return false;
+    }
+    return chat.users.some((user) => user.userId === userId);
+  }
 }

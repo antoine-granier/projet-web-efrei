@@ -44,7 +44,7 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     ChatModule,
     MessageModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppResolver, PrismaService],

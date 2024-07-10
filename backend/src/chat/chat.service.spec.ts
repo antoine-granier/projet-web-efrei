@@ -2,13 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ChatResolver } from './chat.resolver';
 import { ChatService } from './chat.service';
 import { UserService } from '../user/user.service';
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { Chat } from '../models/chat.model';
+import { HttpException } from '@nestjs/common';
 
 describe('ChatResolver', () => {
   let resolver: ChatResolver;
-  let chatService: ChatService;
-  let userService: UserService;
 
   const mockChatService = {
     findAll: jest.fn(),
@@ -33,8 +30,8 @@ describe('ChatResolver', () => {
     }).compile();
 
     resolver = module.get<ChatResolver>(ChatResolver);
-    chatService = module.get<ChatService>(ChatService);
-    userService = module.get<UserService>(UserService);
+
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -75,7 +72,9 @@ describe('ChatResolver', () => {
       mockUserService.findById.mockResolvedValue(null);
 
       await expect(resolver.getChatsByUser('1')).rejects.toThrow(HttpException);
-      await expect(resolver.getChatsByUser('1')).rejects.toThrow('User not found');
+      await expect(resolver.getChatsByUser('1')).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 
@@ -97,13 +96,19 @@ describe('ChatResolver', () => {
       mockUserService.findById.mockResolvedValue(null);
 
       await expect(resolver.createChat(['1'])).rejects.toThrow(HttpException);
-      await expect(resolver.createChat(['1'])).rejects.toThrow('User not found');
+      await expect(resolver.createChat(['1'])).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 
   describe('addMessageToChat', () => {
     it('should add a message to the chat', async () => {
-      const chat = { id: '1', users: [], messages: [] };
+      const chat = {
+        id: '1',
+        users: [{ id: '1', name: 'User' }],
+        messages: [],
+      };
       const user = { id: '1', name: 'User', email: 'user@example.com' };
       mockChatService.findById.mockResolvedValue(chat);
       mockUserService.findById.mockResolvedValue(user);
@@ -113,14 +118,22 @@ describe('ChatResolver', () => {
       expect(result).toBe(true);
       expect(mockChatService.findById).toHaveBeenCalledWith('1');
       expect(mockUserService.findById).toHaveBeenCalledWith('1');
-      expect(mockChatService.addMessageToChatQueue).toHaveBeenCalledWith('1', 'message', '1');
+      expect(mockChatService.addMessageToChatQueue).toHaveBeenCalledWith(
+        '1',
+        'message',
+        '1',
+      );
     });
 
     it('should throw an error if chat is not found', async () => {
       mockChatService.findById.mockResolvedValue(null);
 
-      await expect(resolver.addMessageToChat('1', 'message', '1')).rejects.toThrow(HttpException);
-      await expect(resolver.addMessageToChat('1', 'message', '1')).rejects.toThrow('Chat not found');
+      await expect(
+        resolver.addMessageToChat('1', 'message', '1'),
+      ).rejects.toThrow(HttpException);
+      await expect(
+        resolver.addMessageToChat('1', 'message', '1'),
+      ).rejects.toThrow('Chat not found');
     });
 
     it('should throw an error if user is not found', async () => {
@@ -128,8 +141,12 @@ describe('ChatResolver', () => {
       mockChatService.findById.mockResolvedValue(chat);
       mockUserService.findById.mockResolvedValue(null);
 
-      await expect(resolver.addMessageToChat('1', 'message', '1')).rejects.toThrow(HttpException);
-      await expect(resolver.addMessageToChat('1', 'message', '1')).rejects.toThrow('Author not found');
+      await expect(
+        resolver.addMessageToChat('1', 'message', '1'),
+      ).rejects.toThrow(HttpException);
+      await expect(
+        resolver.addMessageToChat('1', 'message', '1'),
+      ).rejects.toThrow('Author not found');
     });
   });
 
@@ -153,7 +170,9 @@ describe('ChatResolver', () => {
       mockChatService.findById.mockResolvedValue(null);
 
       await expect(resolver.addUser('1', '1')).rejects.toThrow(HttpException);
-      await expect(resolver.addUser('1', '1')).rejects.toThrow('Chat not found');
+      await expect(resolver.addUser('1', '1')).rejects.toThrow(
+        'Chat not found',
+      );
     });
 
     it('should throw an error if user is not found', async () => {
@@ -162,7 +181,9 @@ describe('ChatResolver', () => {
       mockUserService.findById.mockResolvedValue(null);
 
       await expect(resolver.addUser('1', '1')).rejects.toThrow(HttpException);
-      await expect(resolver.addUser('1', '1')).rejects.toThrow('User not found');
+      await expect(resolver.addUser('1', '1')).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 });

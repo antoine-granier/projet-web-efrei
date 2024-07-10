@@ -2,7 +2,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MessageService } from './message.service';
 import { Message } from '../models/message.model';
 import { ChatService } from '../chat/chat.service';
-import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 
 @Resolver()

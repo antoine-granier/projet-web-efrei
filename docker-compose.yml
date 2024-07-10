@@ -18,16 +18,16 @@ services:
     networks:
       - back
 
-  nest:
-    # image: zeeeartiste/back-chat-app:latest
-    build: ./backend
-    ports:
-      - '3000:3000'
-    depends_on: 
-      - redis
-      - postgres
-    networks:
-      - back
+  # nest:
+  #   # image: zeeeartiste/back-chat-app:latest
+  #   build: ./backend
+  #   ports:
+  #     - '3000:3000'
+  #   depends_on: 
+  #     - redis
+  #     - postgres
+  #   networks:
+  #     - back
 
 networks:
   back:

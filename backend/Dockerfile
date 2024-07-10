@@ -16,7 +16,6 @@ RUN npm run test
 
 RUN npm run build --if-present
 
-
 EXPOSE 3000
 
 CMD [ "npm", "start" ]

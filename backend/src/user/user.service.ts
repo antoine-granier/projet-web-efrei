@@ -89,7 +89,7 @@ export class UserService {
     if (existingUser) {
       throw new HttpException('User already exists', HttpStatus.CONFLICT);
     }
-    
+
     let user: User;
     try {
       user = await this.prisma.user.create({
@@ -102,7 +102,6 @@ export class UserService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
 
     await this.setCachedData(`users-${user.id}`, user);
     const users = await this.prisma.user.findMany();

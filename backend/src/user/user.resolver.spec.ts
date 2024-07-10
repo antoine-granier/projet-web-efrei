@@ -9,7 +9,6 @@ jest.mock('../utils', () => ({
 
 describe('UserResolver', () => {
   let resolver: UserResolver;
-  let userService: UserService;
 
   const mockUserService = {
     findAll: jest.fn(),
@@ -27,7 +26,6 @@ describe('UserResolver', () => {
     }).compile();
 
     resolver = module.get<UserResolver>(UserResolver);
-    userService = module.get<UserService>(UserService);
   });
 
   afterEach(() => {
@@ -79,22 +77,32 @@ describe('UserResolver', () => {
 
       expect(result).toEqual(user);
       expect(isValidEmail).toHaveBeenCalledWith('user1@example.com');
-      expect(mockUserService.findByEmail).toHaveBeenCalledWith('user1@example.com');
+      expect(mockUserService.findByEmail).toHaveBeenCalledWith(
+        'user1@example.com',
+      );
     });
 
     it('should throw an error if email format is invalid', async () => {
       (isValidEmail as jest.Mock).mockReturnValue(false);
 
-      await expect(resolver.getUserByEmail('invalid-email')).rejects.toThrow(HttpException);
-      await expect(resolver.getUserByEmail('invalid-email')).rejects.toThrow('Invalid email format');
+      await expect(resolver.getUserByEmail('invalid-email')).rejects.toThrow(
+        HttpException,
+      );
+      await expect(resolver.getUserByEmail('invalid-email')).rejects.toThrow(
+        'Invalid email format',
+      );
     });
 
     it('should throw an error if user is not found', async () => {
       (isValidEmail as jest.Mock).mockReturnValue(true);
       mockUserService.findByEmail.mockResolvedValue(null);
 
-      await expect(resolver.getUserByEmail('user1@example.com')).rejects.toThrow(HttpException);
-      await expect(resolver.getUserByEmail('user1@example.com')).rejects.toThrow('User not found');
+      await expect(
+        resolver.getUserByEmail('user1@example.com'),
+      ).rejects.toThrow(HttpException);
+      await expect(
+        resolver.getUserByEmail('user1@example.com'),
+      ).rejects.toThrow('User not found');
     });
   });
 });
