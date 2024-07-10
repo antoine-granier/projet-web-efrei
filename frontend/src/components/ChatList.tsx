@@ -34,6 +34,7 @@ const ChatList = () => {
 
   const { data, loading, error } = useQuery(GetChatsByUserDocument, {
     variables: { userId: user?.id || "" },
+    pollInterval: 500,
   });
 
   return (

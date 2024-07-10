@@ -89,6 +89,7 @@ const Chat = () => {
 
   const { data, loading, error } = useQuery(GetChatByIdDocument, {
     variables: { chatId: id || "" },
+    pollInterval: 500,
   });
 
   const [addMessage] = useMutation(AddMessageToChatDocument, {
@@ -210,9 +211,9 @@ const Chat = () => {
             }
             toast.promise(sendMessage, {
               loading: "Sending message...",
-              success: () => {
+              success: async () => {
                 setMessage("");
-                return `Message send.`;
+                return `Message sent.`;
               },
               error: "Error. Try later...",
             });

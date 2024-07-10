@@ -55,7 +55,7 @@ const AddUserModal: React.FC<AddUserModaltModalProps> = ({
 
   const client = useApolloClient();
 
-  const { data, loading } = useQuery(GetUsersDocument);
+  const { data, loading } = useQuery(GetUsersDocument, { pollInterval: 5000 });
   const [addUser, { loading: addLoading, error: addError }] = useMutation(
     AddUserDocument,
     {
