@@ -26,8 +26,8 @@ export class ChatGateway
 
   constructor(private chatService: ChatService) {}
 
-  afterInit(server: Server) {
-    this.logger.log(`WebSocket Gateway Initialized ${server.path()}`);
+  afterInit() {
+    this.logger.log(`WebSocket Gateway Initialized`);
   }
 
   handleConnection(client: Socket) {

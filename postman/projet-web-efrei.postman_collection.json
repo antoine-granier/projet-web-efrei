@@ -1,0 +1,362 @@
+{
+	"info": {
+		"_postman_id": "f76216fb-7a0d-46cd-9731-74537b56436b",
+		"name": "projet-web-efrei",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36365754",
+		"_collection_link": "https://marseille-1981.postman.co/workspace/Marseille-Workspace~529ffede-0f09-4398-85e3-2ba886801059/collection/36365754-f76216fb-7a0d-46cd-9731-74537b56436b?action=share&source=collection_link&creator=36365754"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "createUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation createUser($name: String!, $email: String!) {\n    createUser(name: $name, email: $email) {\n        id\n        name\n        email\n    }\n}",
+								"variables": "{\n    \"name\": \"user1\",\n    \"email\": \"user1@mail.com\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUsers",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "{\n    getUsers {\n        id\n        name\n        email\n    }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserById",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query getUserById($userId: String!) {\n    getUserById(userId: $userId) {\n        id\n        name\n        email\n    }\n}",
+								"variables": "{\n    \"userId\": \"clxlu1bqz0000qn0afsjlsd6a\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserByEmail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query getUserByEmail($email: String!) {\n    getUserByEmail(email: $email) {\n        id\n        name\n        email\n    }\n}",
+								"variables": "{\n    \"email\": \"user1@mail.com\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Chats",
+			"item": [
+				{
+					"name": "addUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation addUser($userId: String!, $chatId: String!) {\n  addUser(userId: $userId, chatId: $chatId) {\n    id\n    users {\n      id\n      name\n      email\n    }\n  }\n}",
+								"variables": "{\n    \"userId\": \"clyd18ddm0000frst91tudu9c\",\n    \"chatId\": \"clyd2q0be0000vr43hjf8rpgz\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createChat",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation createChat($userIds: [String!]!) {\n  createChat(userIds: $userIds) {\n    id\n    users {\n        id\n    }\n}\n}\n",
+								"variables": "{\n  \"userIds\": [\n    \"clye6ddm10000ollgl3bmkwaq\"\n  ]\n}\n"
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addMessageToChat",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation addMessageToChat($chatId: String!, $message: String!, $author: String!) {\n    addMessageToChat(chatId: $chatId, message: $message, author: $author)\n}\n",
+								"variables": "{\n  \"chatId\": \"clyd2q0be0000vr43hjf8rpgz\",\n  \"message\": \"test message f\",\n  \"author\": \"clyd18ddm0000frst91tudu9c\"\n}\n"
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getChatByUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query getChatsByUser($userId: String!) {\n  getChatsByUser(userId: $userId) {\n    id\n    users {\n      id\n      name\n    }\n    messages {\n        author {\n            id\n            email\n            name\n        }\n        content\n    }\n  }\n}\n",
+								"variables": "{\n  \"userId\": \"clyd18ddm0000frst91tudu9c\"\n}\n"
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAll",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\n  getChats {\n    id\n    users {\n      id\n      name\n    }\n  }\n}\n",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Messages",
+			"item": [
+				{
+					"name": "createMessage",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation createMessage($content: String!, $author: String!, $chat: String!) {\n    createMessage(content: $content, author: $author, chat: $chat) {\n        id\n        content\n        author {\n            id\n            name\n            email\n        }\n        chat {\n            id\n            users {\n                id\n                name\n                email\n            }\n        }\n    }\n}",
+								"variables": "{\n    \"content\": \"salut\",\n    \"author\": \"clye6ddm10000ollsgl3bmkwaq\",\n    \"chat\": \"clye6dkmo0001ollgxcclru8d\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getMessages",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "{\n    getMessages {\n        id\n        content\n        author {\n            id\n            name\n            email\n        }\n        chat {\n            id\n            users {\n                id\n                name\n                email\n            }\n        }\n    }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getMessagesByChat",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query getMessagesByChat($chatId: String!) {\n  getMessagesByChat(chatId: $chatId) {\n    id\n    content\n    author {\n        id\n        name\n        email\n    }\n    chat {\n        id\n        users {\n            id\n            name\n            email\n        }\n    }\n  }\n}",
+								"variables": "{\n    \"chatId\": \"clyd1rn5u0000lghk6otj9jya\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{API}}/graphql",
+							"host": [
+								"{{API}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SignIn",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation signIn($email: String!, $password: String!) {\n    signIn(email: $email, password: $password) {\n      id\n      name\n      email\n      token\n  }\n}",
+						"variables": "{\n    \"email\": \"user1@mail.com\",\n    \"password\": \"test\"\n}"
+					}
+				},
+				"url": {
+					"raw": "{{API}}/graphql",
+					"host": [
+						"{{API}}"
+					],
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SignUp",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation signIn($email: String!, $password: String!) {\n    signIn(email: $email, password: $password) {\n      id\n      name\n      email\n      token\n  }\n}",
+						"variables": "{\n    \"email\": \"user1@mail.com\",\n    \"password\": \"test\"\n}"
+					}
+				},
+				"url": {
+					"raw": "{{API}}/graphql",
+					"host": [
+						"{{API}}"
+					],
+					"path": [
+						"graphql"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
