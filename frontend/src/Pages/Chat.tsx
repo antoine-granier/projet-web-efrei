@@ -124,6 +124,8 @@ const Chat = () => {
       });
 
       return () => {
+        socket.off("connect");
+        socket.off("message");
         socket.disconnect();
       };
     }
