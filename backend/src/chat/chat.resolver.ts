@@ -4,6 +4,7 @@ import { Chat } from '../models/chat.model';
 import { UserService } from '../user/user.service';
 import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { ChatMemberGuard } from './chat-member-guards';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Resolver()
 export class ChatResolver {
@@ -13,11 +14,13 @@ export class ChatResolver {
   ) {}
 
   @Query(() => [Chat])
+  @UseGuards(AuthGuard)
   getChats(): Promise<Chat[]> {
     return this.chatService.findAll();
   }
 
   @Query(() => [Chat])
+  @UseGuards(AuthGuard)
   async getChatsByUser(@Args('userId') userId: string): Promise<Chat[]> {
     const user = await this.userService.findById(userId);
     if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -25,7 +28,7 @@ export class ChatResolver {
   }
 
   @Query(() => Chat)
-  @UseGuards(ChatMemberGuard)
+  @UseGuards(AuthGuard, ChatMemberGuard)
   async getChatById(@Args('chatId') chatId: string): Promise<Chat> {
     const chat = await this.chatService.findById(chatId);
     if (!chat) throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
@@ -33,6 +36,7 @@ export class ChatResolver {
   }
 
   @Mutation(() => Chat)
+  @UseGuards(AuthGuard)
   async createChat(
     @Args('userIds', { type: () => [String] }) userIds: string[],
   ): Promise<Chat> {
@@ -46,7 +50,7 @@ export class ChatResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(ChatMemberGuard)
+  // @UseGuards(AuthGuard, ChatMemberGuard)
   async addMessageToChat(
     @Args('chatId') chatId: string,
     @Args('message') message: string,
