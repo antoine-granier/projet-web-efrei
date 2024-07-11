@@ -2,6 +2,7 @@ import { gql, useMutation } from "@apollo/client";
 import { Button, TextInput } from "flowbite-react";
 import { SyntheticEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const REGISTER_MUTATION = gql`
   mutation signUp($name: String!, $email: String!, $password: String!) {
@@ -22,16 +23,18 @@ const Register: React.FC = () => {
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) return console.log("erreur");
+    if (password !== confirmPassword)
+      return toast.error("Password should be equals to confirm password");
     try {
       const response = await register({
         variables: { name: name, email, password },
       });
       if (response.data?.signUp?.success) {
         navigate("/login");
-      } else console.log("erreur");
+      }
     } catch (err) {
-      console.error("Erreur lors de la connexion:", err);
+      console.error("Error during connection:", err);
+      toast.error("Error during connection. Try later...");
     }
   };
 

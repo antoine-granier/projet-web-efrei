@@ -223,11 +223,7 @@ const Chat = () => {
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <Button
-          onClick={async () => {
-            onSubmit();
-          }}
-        >
+        <Button onClick={() => onSubmit()}>
           <IoMdSend />
         </Button>
       </div>

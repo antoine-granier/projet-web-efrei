@@ -19,7 +19,7 @@ export class ChatProcessor {
     job: Job<{ message: string; user: User; chatId: string }>,
   ) {
     const { message, user, chatId } = job.data;
-    console.log(`Processing message: ${message}`);
+    this.logger.log(`Processing message: ${message}`);
     try {
       await this.prisma.message.create({
         data: { content: message, authorId: user.id, chatId },

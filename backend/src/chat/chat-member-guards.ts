@@ -33,8 +33,6 @@ export class ChatMemberGuard implements CanActivate {
     if (!chat) {
       throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
     }
-
-    console.log(payload);
     
     const isUserInChat = chat.users.some(chatUser => chatUser.id === payload.sub);
     if (!isUserInChat) {
