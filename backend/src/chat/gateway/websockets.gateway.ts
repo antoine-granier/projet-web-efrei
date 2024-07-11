@@ -10,7 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ExecutionContext, Logger } from '@nestjs/common';
 import { ChatService } from '../chat.service';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../../auth/auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/models/user.model';
 

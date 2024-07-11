@@ -4,6 +4,7 @@ import { MessageService } from './message.service';
 import { ChatService } from '../chat/chat.service';
 import { UserService } from '../user/user.service';
 import { HttpException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 describe('MessageResolver', () => {
   let resolver: MessageResolver;
@@ -21,6 +22,11 @@ describe('MessageResolver', () => {
     findById: jest.fn(),
   };
 
+  const mockJwtService = {
+    sign: jest.fn(),
+    verify: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -28,6 +34,7 @@ describe('MessageResolver', () => {
         { provide: MessageService, useValue: mockMessageService },
         { provide: ChatService, useValue: mockChatService },
         { provide: UserService, useValue: mockUserService },
+        { provide: JwtService, useValue: mockJwtService },
       ],
     }).compile();
 

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
 import { HttpException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { isValidEmail } from '../utils';
 jest.mock('../utils', () => ({
   isValidEmail: jest.fn(),
@@ -17,11 +18,17 @@ describe('UserResolver', () => {
     create: jest.fn(),
   };
 
+  const mockJwtService = {
+    sign: jest.fn(),
+    verify: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserResolver,
         { provide: UserService, useValue: mockUserService },
+        { provide: JwtService, useValue: mockJwtService },
       ],
     }).compile();
 

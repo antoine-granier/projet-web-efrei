@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { User } from '../models/user.model';
 import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { isValidEmail } from '../utils';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Resolver()
 export class UserResolver {

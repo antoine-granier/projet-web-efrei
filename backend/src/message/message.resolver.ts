@@ -4,7 +4,7 @@ import { Message } from '../models/message.model';
 import { ChatService } from '../chat/chat.service';
 import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Resolver()
 export class MessageResolver {
