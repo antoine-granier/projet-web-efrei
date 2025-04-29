@@ -3,3 +3,5 @@ Groupe 3:
 - GRANIER Antoine
 
 [Etude de faisabilité](study.md)
+
+😊
